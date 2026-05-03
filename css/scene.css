@@ -164,7 +164,7 @@
     .char-panel {
         grid-column: 1;
         grid-row: 2;
-        height: 180px;
+        height: 160px;
         border-right: none;
         border-bottom: 4px solid var(--ink);
     }
@@ -180,12 +180,13 @@
         padding: 1rem;
         grid-template-columns: 1fr;
         gap: 12px;
+        overflow-y: auto;
     }
     
     .right-panel .prop-image {
         grid-column: 1;
         grid-row: auto;
-        max-height: 200px;
+        max-height: 180px;
     }
     
     .right-panel .visual-card,
@@ -193,9 +194,20 @@
         grid-column: 1;
     }
     
+    .dialog-area {
+        grid-row: 4;
+        padding: 12px 18px;
+        min-height: 130px;
+    }
+
     .top-bar {
-        font-size: 0.9rem;
-        padding: 5px 10px;
+        font-size: 0.85rem;
+        padding: 6px 10px;
+        gap: 8px;
+    }
+    .top-bar .election-tag {
+        font-size: 0.8rem;
+        padding: 1px 6px;
     }
 }
 

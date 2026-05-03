@@ -321,8 +321,7 @@
         font-size: 1.8rem;
     }
     .dialog-area {
-        padding: 15px 20px;
-        min-height: 140px;
+        /* Layout handled in scene.css */
     }
     .speaker-name {
         font-size: 1.2rem;

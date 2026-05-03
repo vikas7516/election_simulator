@@ -240,11 +240,13 @@
     justify-content: center;
 }
 .badge {
+    display: inline-block;
     border: 2px solid var(--ink);
     font-family: 'Bangers', cursive;
     font-size: 0.9rem;
     padding: 4px 14px;
     letter-spacing: 1px;
+    margin: 4px;
 }
 .badge.yellow { background: var(--yellow); }
 .badge.cyan   { background: var(--cyan); color: #fff; }
