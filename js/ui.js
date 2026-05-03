@@ -287,7 +287,9 @@ export const UIMixin = {
         </div>
 
         <!-- FEEDBACK PANEL (hidden initially) -->
-        <div class="feedback-panel" id="feedback-panel" style="display:none" role="dialog" aria-modal="true"></div>
+        <div class="feedback-panel" id="feedback-panel" style="display:none" role="dialog" aria-modal="true" aria-labelledby="feedback-panel-title">
+            <span id="feedback-panel-title" class="sr-only">Choice Feedback</span>
+        </div>
         `);
 
         wrap.querySelectorAll('.choice-btn').forEach(b => {

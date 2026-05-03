@@ -52,6 +52,10 @@
     transform: translate(-2px, -2px);
     box-shadow: 6px 6px 0px var(--ink);
 }
+.menu-btn:focus-visible {
+    outline: 3px solid var(--cyan);
+    outline-offset: 2px;
+}
 
 .special-election-btn {
     background: linear-gradient(135deg, #fff 0%, #fffbf0 100%);
@@ -155,6 +159,7 @@
 .btn-back:hover {
     transform: translate(-2px, -2px);
 }
+.btn-back:focus-visible { outline: 3px solid var(--cyan); outline-offset: 2px; }
 
 /* ── EXIT CONFIRMATION MODAL ── */
 .exit-modal-overlay {
@@ -208,6 +213,7 @@
     transition: transform 0.1s;
 }
 .btn-exit-confirm:hover { transform: translate(-2px, -2px); }
+.btn-exit-confirm:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
 .btn-exit-cancel {
     background: #fff;
     color: var(--ink);
@@ -221,6 +227,7 @@
     transition: transform 0.1s;
 }
 .btn-exit-cancel:hover { transform: translate(-2px, -2px); background: var(--yellow); }
+.btn-exit-cancel:focus-visible { outline: 3px solid var(--cyan); outline-offset: 2px; }
 
 /* ── START SCREEN DECORATIONS ── */
 .start-content {
