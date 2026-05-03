@@ -1,5 +1,4 @@
-import { generateGeminiContent } from './services.js';
-
+// UI Mixin
 export const UIMixin = {
     // ── RENDER VISUAL CARD ──────────────────────────────────────────────
     renderVisual(v) {
@@ -30,7 +29,7 @@ export const UIMixin = {
         }
         if (v.type === 'stat_card') {
             return `<div class="visual-card stat-card ${accent}">
-                <span class="stat-big" style="color:var(--${v.color||'cyan'})">${v.stat}</span>
+                <span class="stat-big" style="color:var(--${v.color || 'cyan'})">${v.stat}</span>
                 <span class="stat-label">${v.label}</span>
                 ${v.context ? `<div class="stat-context">${v.context}</div>` : ''}
             </div>`;
@@ -46,7 +45,7 @@ export const UIMixin = {
             return `<div class="visual-card ${accent}">
                 ${v.title ? `<h3>${v.title}</h3>` : ''}
                 <ul class="steps-list">
-                    ${v.steps.map((s, i) => `<li><span class="step-num">${i+1}</span><span>${s}</span></li>`).join('')}
+                    ${v.steps.map((s, i) => `<li><span class="step-num">${i + 1}</span><span>${s}</span></li>`).join('')}
                 </ul>
             </div>`;
         }
@@ -60,7 +59,7 @@ export const UIMixin = {
             const rows = Math.max(v.left.items.length, v.right.items.length);
             let trs = '';
             for (let i = 0; i < rows; i++) {
-                trs += `<tr><td>${v.left.items[i]||''}</td><td>${v.right.items[i]||''}</td></tr>`;
+                trs += `<tr><td>${v.left.items[i] || ''}</td><td>${v.right.items[i] || ''}</td></tr>`;
             }
             return `<div class="visual-card ${accent}">
                 <h3>${v.title}</h3>
@@ -177,7 +176,7 @@ export const UIMixin = {
                     🗳️ START PLAYING ➜
                 </button>
             </div>
-        </div>`;
+        </div>`);
     },
     renderMenuElection(wrap) {
         const btns = Object.keys(this.data.ELECTIONS).map(k => {
@@ -201,8 +200,8 @@ export const UIMixin = {
         const btns = this.data.ROLES.map(r => {
             const story = stories ? stories[r.id] : null;
             const charImg = (story && story.length > 0 && story[0].char) ? story[0].char : null;
-            
-            const charPreview = charImg 
+
+            const charPreview = charImg
                 ? `<div class="role-char-preview"><img src="assets/${charImg}" alt="Role preview for ${r.title}"></div>`
                 : '';
 
@@ -241,7 +240,7 @@ export const UIMixin = {
         // Prop image (right panel bottom, optional)
         const detailedProps = ['prop_cvigil.webp', 'prop_voter_id.webp'];
         const isDetailed = scene.asset && detailedProps.includes(scene.asset);
-        
+
         const propEl = scene.asset
             ? `<img src="assets/${scene.asset}" class="prop-image" id="prop-img" alt="Prop: ${scene.asset.split('.')[0]}">`
             : '';
@@ -252,11 +251,14 @@ export const UIMixin = {
             : '';
 
         // Hint box (dialog area, optional)
-        // Render hint element block dynamically so Gemini knows where to mount it even if empty initially
-        const hintEl = `<div class="hint-box" style="display:none;" id="hint-box"></div>`;
+        const hintEl = scene.hint ? `<div class="hint-box" style="display:none;" id="hint-box">${scene.hint}</div>` : `<div class="hint-box" style="display:none;" id="hint-box"></div>`;
 
         const rightPanelClass = isDetailed ? 'right-panel detailed-view' : 'right-panel standard-view';
         
+        const choicesHTML = (scene.choices && scene.choices.length > 0)
+            ? scene.choices.map((c, i) => `<button class="choice-btn" data-index="${i}">${c.text}</button>`).join('')
+            : `<button class="btn-next" onclick="document.getElementById('btn-dialog-continue').click()">No choices available. Continue ➜</button>`;
+
         wrap.innerHTML = DOMPurify.sanitize(`
         <div class="scene-layout scene-fade-in">
             <!-- TOP BAR -->
@@ -288,44 +290,18 @@ export const UIMixin = {
 
         <!-- CHOICES OVERLAY (hidden initially) -->
         <div class="choices-overlay" id="choices-overlay" style="display:none" role="dialog" aria-modal="true" aria-labelledby="choices-label">
-            <div class="choices-label" id="choices-label">⚡ LOADING SCENARIO FROM GEMINI AI...</div>
-            <div id="choices-container" style="display:flex; flex-direction:column; gap:16px; width:100%; align-items:center;"></div>
+            <div class="choices-label" id="choices-label">⚡ WHAT DO YOU DO?</div>
+            <div id="choices-container" style="display:flex; flex-direction:column; gap:16px; width:100%; align-items:center;">
+                ${choicesHTML}
+            </div>
         </div>
 
         <!-- FEEDBACK PANEL (hidden initially) -->
         <div class="feedback-panel" id="feedback-panel" style="display:none" role="dialog" aria-modal="true"></div>
         `);
 
-        // Start Gemini Async Generation
-        let geminiData = null;
-        generateGeminiContent(scene.dialog).then(data => {
-            geminiData = data;
-            if (data && data.choices) {
-                // Override scene choices
-                scene.choices = data.choices;
-            }
-            if (data && data.didYouKnow) {
-                scene.hint = `<strong>DID YOU KNOW?</strong> ${data.didYouKnow}`;
-            }
-            
-            // Render the fetched generated choices
-            const container = wrap.querySelector('#choices-container');
-            const label = wrap.querySelector('#choices-label');
-            if (container && label) {
-                label.textContent = "⚡ WHAT DO YOU DO?";
-                if (!scene.choices) {
-                    container.innerHTML = DOMPurify.sanitize(`<button class="btn-next" onclick="document.getElementById('btn-dialog-continue').click()">No choices available. Continue ➜</button>`);
-                } else {
-                    container.innerHTML = DOMPurify.sanitize(scene.choices.map((c, i) =>
-                        `<button class="choice-btn" data-index="${i}">${c.text}</button>`
-                    ).join(''));
-                }
-                
-                // Re-bind choice click listeners since we just replaced innerHTML
-                container.querySelectorAll('.choice-btn').forEach(b => {
-                    b.onclick = () => this.handleChoice(+b.dataset.index);
-                });
-            }
+        wrap.querySelectorAll('.choice-btn').forEach(b => {
+            b.onclick = () => this.handleChoice(+b.dataset.index);
         });
 
         // Show prop image if asset exists
@@ -339,18 +315,17 @@ export const UIMixin = {
         this.isTyping = true;
         this.typeWriter(scene.dialog, dialogTextEl, () => {
             this.isTyping = false;
-            if (scene.hint || geminiData?.didYouKnow) {
-                const hintText = geminiData?.didYouKnow ? `<strong>DID YOU KNOW?</strong> ${geminiData.didYouKnow}` : scene.hint;
+            if (scene.hint) {
                 const hEl = wrap.querySelector('#hint-box');
                 if (hEl) {
-                    hEl.innerHTML = hintText;
+                    hEl.innerHTML = DOMPurify.sanitize(scene.hint);
                     hEl.style.display = 'block';
                 }
             }
             if (continueBtn) {
                 continueBtn.style.display = 'inline-block';
                 continueBtn.onclick = () => {
-                    if (scene.choices || geminiData?.choices) {
+                    if (scene.choices && scene.choices.length > 0) {
                         continueBtn.style.display = 'none';
                         const overlay = wrap.querySelector('#choices-overlay');
                         if (overlay) overlay.style.display = 'flex';
@@ -377,10 +352,10 @@ export const UIMixin = {
         let i = 0;
         this.typeWriterIv = setInterval(() => {
             el.textContent += text.charAt(i++);
-            if (i >= text.length) { 
-                clearInterval(this.typeWriterIv); 
+            if (i >= text.length) {
+                clearInterval(this.typeWriterIv);
                 this.isTyping = false;
-                if (this.onTypeWriterDone) this.onTypeWriterDone(); 
+                if (this.onTypeWriterDone) this.onTypeWriterDone();
             }
         }, 15);
     },

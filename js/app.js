@@ -1,6 +1,6 @@
 import { AudioMixin } from './audio.js';
 import { UIMixin } from './ui.js';
-import { fetchMasterData, fetchElectionStory, generateGeminiContent } from './services.js';
+import { fetchMasterData, fetchElectionStory, generateGeminiContentBulk } from './services.js';
 
 class ElectionSimulator {
     constructor() {
@@ -111,7 +111,7 @@ class ElectionSimulator {
         });
 
         this.app.querySelectorAll('.role-btn').forEach(b => {
-            b.onclick = () => {
+            b.onclick = async () => {
                 this.initAudio(); this.playStart();
                 const role = b.dataset.role;
                 const stories = this.storyCache[this.state.election];
@@ -120,6 +120,23 @@ class ElectionSimulator {
                     alert('Story coming soon! Check back later.');
                     return;
                 }
+                
+                // Show a loading screen
+                this.app.querySelector('.vn-container').innerHTML = DOMPurify.sanitize(`<div class="screen"><div class="start-content"><h1 style="text-align:center; margin-top:20vh;">⚡ GENERATING ROLE WITH AI...</h1><p style="text-align:center;">Crafting scenarios, choices, and civic feedback...</p></div></div>`);
+                
+                // Fetch bulk choices
+                const generated = await generateGeminiContentBulk(story);
+                
+                // Override local story with AI choices if available
+                story.forEach((scene, i) => {
+                    if (generated && generated[i]) {
+                        scene.choices = generated[i].choices;
+                        if (generated[i].didYouKnow) {
+                            scene.hint = `<strong>DID YOU KNOW?</strong> ${generated[i].didYouKnow}`;
+                        }
+                    }
+                });
+
                 this.setState({ role, story, sceneIndex: 0, screen: 'SIMULATION' });
             };
         });

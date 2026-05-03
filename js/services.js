@@ -55,25 +55,30 @@ export async function fetchElectionStory(electionKey, localFile) {
     }
 }
 
-export async function generateGeminiContent(sceneText) {
+export async function generateGeminiContentBulk(storyArray) {
+    const scenesText = storyArray.map((s, i) => `Scene ${i}:\n${s.dialog}`).join("\n\n---\n\n");
    
     const prompt = `You are an expert civic educator designing a scenario for an engaging, gamified Indian Election simulation.
-Given the following scenario text from the game:
-"${sceneText}"
+Given the following list of scenes from the game:
 
-Your task is to generate dynamic, challenging, and highly educational choices for the player.
-1. Create 4 plausible choices a user could make in this situation. 
+${scenesText}
+
+Your task is to generate dynamic, challenging, and highly educational choices for EVERY scene provided.
+1. Create 4 plausible choices a user could make for each scene. 
    - 1 must be the absolute correct protocol according to the Election Commission of India (ECI) guidelines.
    - 3 should be common mistakes, misconceptions, or plausible-sounding but illegal/incorrect actions.
 2. For each choice, provide rich feedback explaining *why* it's right or wrong, citing specific rules, consequences, or mechanics if applicable.
-3. Provide a fascinating "Did You Know?" fact about Indian elections related to this specific topic to display as a hint.
+3. Provide a fascinating "Did You Know?" fact about Indian elections related to each specific topic to display as a hint.
 4. Ensure the tone is immersive, slightly dramatic (like a game), but fundamentally educational.
 
-Respond strictly in JSON format matching this exact structure:
-{
-  "choices": [ { "text": "...", "isCorrect": true/false, "feedback": "..." } ],
-  "didYouKnow": "..."
-}`;
+Respond strictly in JSON format matching this exact structure (an array of objects, one for each scene in order):
+[
+  {
+    "sceneIndex": 0,
+    "choices": [ { "text": "...", "isCorrect": true/false, "feedback": "..." }, ...4 choices total ],
+    "didYouKnow": "..."
+  }
+]`;
 
     try {
         const response = await fetch(GEMINI_PROXY_URL, {
@@ -89,7 +94,7 @@ Respond strictly in JSON format matching this exact structure:
         const jsonString = data.candidates[0].content.parts[0].text;
         return JSON.parse(jsonString);
     } catch (e) {
-        console.error("Gemini Generation failed:", e);
+        console.error("Gemini Bulk Generation failed:", e);
         return null;
     }
 }
