@@ -136,9 +136,7 @@ class ElectionSimulator {
         const leave = document.getElementById('btn-leave');
         if (leave) leave.onclick = () => {
             this.playClick();
-            if (confirm("Are you sure you want to leave the simulation?")) {
-                this.setState({ screen: 'START', election: null, role: null });
-            }
+            this.showExitModal();
         };
 
         // Add hover sounds to all buttons

@@ -85,7 +85,7 @@
 
 .role-char-preview {
     width: 140px;
-    background: var(--pink);
+    background: #FFF9C4;
     display: flex;
     justify-content: center;
     align-items: flex-end;
@@ -140,18 +140,84 @@
 
 .btn-back {
     margin-top: 1.5rem;
-    background: #fff;
-    border: 3px solid var(--pink);
-    color: var(--pink);
+    background: #FFF9C4;
+    border: 3px solid var(--ink);
+    color: var(--ink);
     font-family: 'Outfit', sans-serif;
     font-weight: 800;
     font-size: 1rem;
     padding: 0.6rem 2rem;
     cursor: pointer;
-    box-shadow: 3px 3px 0 var(--pink);
+    box-shadow: 3px 3px 0 var(--ink);
     transition: transform 0.1s;
 }
 
 .btn-back:hover {
     transform: translate(-2px, -2px);
 }
+
+/* ── EXIT CONFIRMATION MODAL ── */
+.exit-modal-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 500;
+    background: rgba(44, 62, 80, 0.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: popIn 0.2s ease-out;
+}
+.exit-modal-box {
+    background: var(--bg);
+    border: 4px solid var(--ink);
+    box-shadow: 6px 6px 0 var(--ink);
+    padding: 2.5rem 3rem;
+    text-align: center;
+    max-width: 420px;
+    width: 90%;
+}
+.exit-modal-box h2 {
+    font-family: 'Bangers', cursive;
+    font-size: 2.2rem;
+    letter-spacing: 2px;
+    color: var(--ink);
+    margin-bottom: 0.5rem;
+}
+.exit-modal-box p {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #555;
+    margin-bottom: 1.8rem;
+    line-height: 1.5;
+}
+.exit-modal-actions {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+}
+.btn-exit-confirm {
+    background: var(--red);
+    color: #fff;
+    border: 3px solid var(--ink);
+    font-family: 'Bangers', cursive;
+    font-size: 1.2rem;
+    letter-spacing: 1px;
+    padding: 10px 28px;
+    cursor: pointer;
+    box-shadow: 3px 3px 0 var(--ink);
+    transition: transform 0.1s;
+}
+.btn-exit-confirm:hover { transform: translate(-2px, -2px); }
+.btn-exit-cancel {
+    background: #fff;
+    color: var(--ink);
+    border: 3px solid var(--ink);
+    font-family: 'Bangers', cursive;
+    font-size: 1.2rem;
+    letter-spacing: 1px;
+    padding: 10px 28px;
+    cursor: pointer;
+    box-shadow: 3px 3px 0 var(--ink);
+    transition: transform 0.1s;
+}
+.btn-exit-cancel:hover { transform: translate(-2px, -2px); background: var(--yellow); }

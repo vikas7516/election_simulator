@@ -20,7 +20,8 @@
     grid-column: 1 / -1;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-start;
+    gap: 15px;
     padding: 8px 14px;
     border-bottom: 3px solid var(--ink);
     background: var(--ink);
@@ -40,8 +41,6 @@
 .top-bar .scene-counter {
     opacity: 0.8;
     font-size: 0.9rem;
-    margin-right: auto;
-    margin-left: 15px;
 }
 .btn-leave {
     background: var(--red);
@@ -53,6 +52,7 @@
     cursor: pointer;
     border-radius: 4px;
     transition: transform 0.1s, background 0.1s;
+    margin-left: auto;
 }
 .btn-leave:hover {
     transform: scale(1.05);
@@ -81,8 +81,10 @@
     );
 }
 .char-sprite {
+    width: 90%;
     height: 90%;
     object-fit: contain;
+    object-position: bottom center;
     position: relative;
     z-index: 2;
     filter: drop-shadow(2px 0 0 #000);
@@ -101,13 +103,54 @@
 .right-panel {
     grid-column: 2;
     grid-row: 2;
-    padding: 2rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 20px;
+    padding: 1.5rem 2rem;
     overflow-y: auto;
     position: relative;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto;
+    gap: 15px 24px;
+    align-items: start;
+    align-content: start;
+}
+
+.right-panel .visual-card {
+    grid-column: 1;
+    width: 100%;
+}
+.right-panel .prop-image {
+    grid-column: 2;
+    grid-row: 1 / 3;
+    max-height: 240px;
+    max-width: 100%;
+    justify-self: center;
+    align-self: center;
+}
+.right-panel .fact-card {
+    grid-column: 1 / -1;
+    width: 100%;
+}
+
+/* Detailed View (cVigil / Voter ID) -> bigger image */
+.right-panel.detailed-view {
+    grid-template-columns: 45% 55%;
+}
+.right-panel.detailed-view .prop-image {
+    max-height: 380px;
+}
+
+/* When only a prop image exists */
+.right-panel:has(.prop-image):not(:has(.visual-card)) .prop-image {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    max-height: 320px;
+}
+.right-panel.detailed-view:has(.prop-image):not(:has(.visual-card)) .prop-image {
+    max-height: 480px;
+}
+
+/* When only a visual card exists */
+.right-panel:has(.visual-card):not(:has(.prop-image)) .visual-card {
+    grid-column: 1 / -1;
 }
 
