@@ -17,8 +17,9 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// TODO: Replace with your actual Gemini API Key
-const GEMINI_API_KEY = "YOUR_GEMINI_API_KEY";
+// The GEMINI_API_KEY is NO LONGER HARDCODED!
+// We route requests through our own local Nginx secure reverse proxy
+const GEMINI_PROXY_URL = "/api/gemini/v1beta/models/gemini-1.5-flash:generateContent";
 
 export async function fetchMasterData() {
     try {
@@ -55,10 +56,6 @@ export async function fetchElectionStory(electionKey, localFile) {
 }
 
 export async function generateGeminiContent(sceneText) {
-    if (GEMINI_API_KEY === "YOUR_GEMINI_API_KEY") {
-        return null;
-    }
-    
     // We ask Gemini to generate richer choices, hints, and a "did you know" fact on the fly
     const prompt = `Given the following scenario from an Indian Election simulation game:
 "${sceneText}"
@@ -75,7 +72,7 @@ Respond strictly in JSON format matching this exact structure:
 }`;
 
     try {
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+        const response = await fetch(GEMINI_PROXY_URL, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({

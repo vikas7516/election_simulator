@@ -1,8 +1,8 @@
 # Use the official Nginx image as the base
 FROM nginx:alpine
 
-# Copy the custom Nginx configuration file
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Copy our template to the unique templates folder Nginx Alpine uses for auto-env substitution
+COPY nginx.conf.template /etc/nginx/templates/default.conf.template
 
 # Copy the static web application files to the Nginx html directory
 COPY . /usr/share/nginx/html
