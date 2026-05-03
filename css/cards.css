@@ -328,7 +328,8 @@
         font-size: 1.4rem;
     }
     .dialog-area {
-        /* Layout handled in scene.css */
+        grid-row: 4;
+        grid-column: 1;
     }
     .speaker-name {
         font-size: 1.1rem;
