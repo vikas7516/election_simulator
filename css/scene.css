@@ -188,7 +188,8 @@
     .right-panel.detailed-view .prop-image {
         grid-column: 1;
         grid-row: auto;
-        max-height: 140px;
+        max-height: 280px;
+        width: 100%;
         object-fit: contain;
     }
     
@@ -223,7 +224,7 @@
     }
     .right-panel .prop-image,
     .right-panel.detailed-view .prop-image {
-        max-height: 120px;
+        max-height: 240px;
     }
     .top-bar {
         font-size: 0.75rem;
