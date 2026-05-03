@@ -389,9 +389,11 @@ export const UIMixin = {
                     <button class="btn-exit-confirm" id="btn-exit-confirm">LEAVE</button>
                 </div>
             </div>`);
-        this.app.querySelector('.vn-container').appendChild(modal);
-        document.getElementById('btn-exit-cancel').onclick = () => modal.remove();
-        document.getElementById('btn-exit-confirm').onclick = () => {
+        // Safely append to vn-container if it exists, otherwise to app root
+        const container = this.app.querySelector('.vn-container') || this.app;
+        container.appendChild(modal);
+        modal.querySelector('#btn-exit-cancel').onclick = () => modal.remove();
+        modal.querySelector('#btn-exit-confirm').onclick = () => {
             modal.remove();
             this.setState({ screen: 'MENU_ELECTION', election: null, role: null });
         };

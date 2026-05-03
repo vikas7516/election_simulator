@@ -4,6 +4,8 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebas
 import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 
 
+// Firebase config — Firebase API keys are safe to expose client-side.
+// Security is enforced via Firebase Security Rules and authorized domain restrictions.
 const firebaseConfig = {
   apiKey: "AIzaSyDTJUW1NMyRjZGH2l-ZLKOiANGtv_YyeWs",
   authDomain: "gen-lang-client-0708607126.firebaseapp.com",

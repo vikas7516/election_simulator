@@ -1,15 +1,24 @@
 {
-  "name": "promptwar",
+  "name": "indian-election-simulator",
   "version": "1.0.0",
   "description": "An immersive, interactive, comic-style educational web application designed to demystify the immense scale, rules, and procedures of the Indian Democratic system.",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node --experimental-vm-modules node_modules/.bin/jest",
+    "test:coverage": "node --experimental-vm-modules node_modules/.bin/jest --coverage"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": ["election", "simulator", "civic", "india", "gemini", "ai", "edtech"],
+  "author": "Indian Election Simulator",
   "license": "ISC",
   "dependencies": {
     "firebase": "^12.12.1"
+  },
+  "devDependencies": {
+    "jest": "^30.3.0",
+    "jest-environment-jsdom": "^30.3.0"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testMatch": ["**/tests/**/*.test.js"]
   }
 }
