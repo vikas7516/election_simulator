@@ -69,13 +69,7 @@ export const UIMixin = {
                 </table>
             </div>`;
         }
-        if (v.type === 'stat_card') {
-            return `<div class="visual-card stat-card ${accent}">
-                <span class="stat-big">${v.stat}</span>
-                <span class="stat-label">${v.label}</span>
-                ${v.context ? `<div class="stat-context">${v.context}</div>` : ''}
-            </div>`;
-        }
+
         if (v.type === 'timeline') {
             return `<div class="visual-card ${accent}">
                 ${v.title ? `<h3>${v.title}</h3>` : ''}
@@ -96,7 +90,7 @@ export const UIMixin = {
 
         const s = this.state;
         if (s.screen === 'LOADING') {
-            wrap.innerHTML = `<div class="screen"><div class="screen-header">LOADING...</div></div>`;
+            wrap.innerHTML = DOMPurify.sanitize(`<div class="screen"><div class="screen-header">LOADING...</div></div>`);
         } else if (s.screen === 'START') {
             this.renderStartScreen(wrap);
         } else if (s.screen === 'MENU_ELECTION') {
@@ -303,7 +297,7 @@ export const UIMixin = {
         const noChoiceBtn = wrap.querySelector('#btn-no-choice');
         if (noChoiceBtn) {
             noChoiceBtn.onclick = () => {
-                const cont = document.getElementById('btn-dialog-continue');
+                const cont = wrap.querySelector('#btn-dialog-continue');
                 if (cont) cont.click();
             };
         }

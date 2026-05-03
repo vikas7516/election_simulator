@@ -18,8 +18,8 @@ class ElectionSimulator {
             this.data = await fetchMasterData();
             this.setState({ screen: 'START' });
         } catch {
-            this.app.innerHTML = `<div style="padding:2rem;color:red;font-family:sans-serif">
-                Error: Could not load data.json. Run via: python3 -m http.server 8080</div>`;
+            this.app.innerHTML = DOMPurify.sanitize(`<div style="padding:2rem;color:red;font-family:sans-serif">
+                Error: Could not load data from Firebase. Check your console.</div>`);
         }
     }
 
@@ -77,6 +77,52 @@ class ElectionSimulator {
         }
     }
 
+    async startRole(role, story, electionKey) {
+        if (!story || story.length === 0) {
+            alert('Story coming soon! Check back later.');
+            return;
+        }
+
+        // Show a loading screen with progress bar
+        this.app.innerHTML = DOMPurify.sanitize(`<div class="screen"><div class="start-content">
+            <h1 style="text-align:center; margin-top:20vh;">⚡ GENERATING ROLE WITH AI...</h1>
+            <p style="text-align:center;">Crafting scenarios, choices, and civic feedback...</p>
+            <div style="width: 80%; max-width: 400px; height: 10px; background: #333; border-radius: 5px; margin: 20px auto; overflow: hidden;">
+                <div id="ai-progress-bar" style="width: 0%; height: 100%; background: var(--green); transition: width 0.5s ease;"></div>
+            </div>
+        </div></div>`);
+        
+        // Simulate progress bar
+        let progress = 0;
+        const progressInterval = setInterval(() => {
+            progress += Math.random() * 15;
+            if (progress > 90) progress = 90;
+            const bar = document.getElementById('ai-progress-bar');
+            if (bar) bar.style.width = \`\${progress}%\`;
+        }, 400);
+
+        // Fetch bulk choices
+        const generated = await generateGeminiContentBulk(story);
+        
+        clearInterval(progressInterval);
+        const bar = document.getElementById('ai-progress-bar');
+        if (bar) bar.style.width = '100%';
+        
+        // Override local story with AI choices if available
+        story.forEach((scene, i) => {
+            if (generated && generated[i]) {
+                scene.choices = generated[i].choices;
+                if (generated[i].didYouKnow) {
+                    scene.fact = generated[i].didYouKnow;
+                }
+            }
+        });
+
+        setTimeout(() => {
+            this.setState({ election: electionKey, role, story, sceneIndex: 0, screen: 'SIMULATION' });
+        }, 500);
+    }
+
     // ── EVENT LISTENERS ──────────────────────────────────────────────────
     attachListeners() {
         const startBtn = document.getElementById('btn-start-playing');
@@ -93,13 +139,7 @@ class ElectionSimulator {
                 try {
                     const stories = await this.loadElectionData(elKey);
                     if (elData.directRole) {
-                        this.setState({ 
-                            election: elKey, 
-                            role: elData.directRole, 
-                            story: stories[elData.directRole], 
-                            sceneIndex: 0, 
-                            screen: 'SIMULATION' 
-                        });
+                        await this.startRole(elData.directRole, stories[elData.directRole], elKey);
                     } else {
                         this.setState({ election: elKey, screen: 'MENU_ROLE' });
                     }
@@ -116,49 +156,7 @@ class ElectionSimulator {
                 const role = b.dataset.role;
                 const stories = this.storyCache[this.state.election];
                 const story = stories[role];
-                if (!story || story.length === 0) {
-                    alert('Story coming soon! Check back later.');
-                    return;
-                }
-                
-                // Show a loading screen with progress bar
-                this.app.querySelector('.vn-container').innerHTML = DOMPurify.sanitize(`<div class="screen"><div class="start-content">
-                    <h1 style="text-align:center; margin-top:20vh;">⚡ GENERATING ROLE WITH AI...</h1>
-                    <p style="text-align:center;">Crafting scenarios, choices, and civic feedback...</p>
-                    <div style="width: 80%; max-width: 400px; height: 10px; background: #333; border-radius: 5px; margin: 20px auto; overflow: hidden;">
-                        <div id="ai-progress-bar" style="width: 0%; height: 100%; background: var(--green); transition: width 0.5s ease;"></div>
-                    </div>
-                </div></div>`);
-                
-                // Simulate progress bar
-                let progress = 0;
-                const progressInterval = setInterval(() => {
-                    progress += Math.random() * 15;
-                    if (progress > 90) progress = 90; // Hold at 90% until done
-                    const bar = document.getElementById('ai-progress-bar');
-                    if (bar) bar.style.width = \`\${progress}%\`;
-                }, 400);
-
-                // Fetch bulk choices
-                const generated = await generateGeminiContentBulk(story);
-                
-                clearInterval(progressInterval);
-                const bar = document.getElementById('ai-progress-bar');
-                if (bar) bar.style.width = '100%';
-                
-                // Override local story with AI choices if available
-                story.forEach((scene, i) => {
-                    if (generated && generated[i]) {
-                        scene.choices = generated[i].choices;
-                        if (generated[i].didYouKnow) {
-                            scene.fact = generated[i].didYouKnow;
-                        }
-                    }
-                });
-
-                setTimeout(() => {
-                    this.setState({ role, story, sceneIndex: 0, screen: 'SIMULATION' });
-                }, 500);
+                await this.startRole(role, story, this.state.election);
             };
         });
 
