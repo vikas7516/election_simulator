@@ -25,7 +25,6 @@ class ElectionSimulator {
 
     async loadElectionData(electionKey) {
         if (this.storyCache[electionKey]) return this.storyCache[electionKey];
-        const file = this.data.ELECTIONS[electionKey].file;
         const stories = await fetchElectionStory(electionKey);
         this.storyCache[electionKey] = stories;
         return stories;
@@ -98,7 +97,7 @@ class ElectionSimulator {
             progress += Math.random() * 15;
             if (progress > 90) progress = 90;
             const bar = document.getElementById('ai-progress-bar');
-            if (bar) bar.style.width = \`\${progress}%\`;
+            if (bar) bar.style.width = progress + '%';
         }, 400);
 
         // Fetch bulk choices
@@ -133,8 +132,8 @@ class ElectionSimulator {
                 this.initAudio(); this.playStart();
                 const elKey = b.dataset.election;
                 const elData = this.data.ELECTIONS[elKey];
-                const originalText = b.innerHTML;
-                b.innerHTML = 'Loading...';
+                const originalText = b.textContent;
+                b.textContent = 'Loading...';
                 
                 try {
                     const stories = await this.loadElectionData(elKey);
@@ -145,7 +144,7 @@ class ElectionSimulator {
                     }
                 } catch (e) {
                     alert('Could not load election data.');
-                    b.innerHTML = originalText;
+                    b.textContent = originalText;
                 }
             };
         });
@@ -175,10 +174,6 @@ class ElectionSimulator {
         // Add hover sounds to all buttons
         this.app.querySelectorAll('button').forEach(b => {
             b.onmouseenter = () => this.playHover();
-        });
-
-        this.app.querySelectorAll('.choice-btn').forEach(b => {
-            b.onclick = () => this.handleChoice(+b.dataset.index);
         });
 
         // Keyboard navigation

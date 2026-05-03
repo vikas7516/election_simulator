@@ -3,7 +3,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
 import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 
-// TODO: Replace with your actual Firebase config
+
 const firebaseConfig = {
   apiKey: "AIzaSyDTJUW1NMyRjZGH2l-ZLKOiANGtv_YyeWs",
   authDomain: "gen-lang-client-0708607126.firebaseapp.com",
@@ -101,8 +101,9 @@ Respond strictly in JSON format matching this exact structure (an array of objec
         });
         
         const data = await response.json();
-        const jsonString = data.candidates[0].content.parts[0].text;
-        return JSON.parse(jsonString);
+        const raw = data.candidates[0].content.parts[0].text;
+        // Handle both pre-parsed JSON (structured output) and string responses
+        return typeof raw === 'string' ? JSON.parse(raw) : raw;
     } catch (e) {
         console.error("Gemini Bulk Generation failed:", e);
         return null;

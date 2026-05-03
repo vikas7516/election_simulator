@@ -30,9 +30,4 @@ server {
     location / {
         try_files $uri $uri/ /index.html;
     }
-
-    # Cache static assets - Set to no-cache for hackathon so updates show instantly
-    location ~* \.(js|css|png|jpg|jpeg|gif|ico|json)$ {
-        add_header Cache-Control "no-cache, must-revalidate";
-    }
 }
