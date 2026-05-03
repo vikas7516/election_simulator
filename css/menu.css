@@ -1,0 +1,157 @@
+/* ── MENU SCREENS ── */
+.screen {
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg);
+    background-image: radial-gradient(circle, #D5DBDB 2px, transparent 2px);
+    background-size: 24px 24px;
+    padding: 2rem;
+}
+
+.screen-header {
+    font-family: 'Bangers', cursive;
+    font-weight: normal;
+    font-size: 3.5rem;
+    letter-spacing: 3px;
+    color: var(--ink);
+    text-align: center;
+    border-bottom: 4px solid var(--ink);
+    padding-bottom: 0.5rem;
+    margin-bottom: 2rem;
+    text-shadow: 3px 3px 0 var(--yellow);
+}
+
+.menu-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    width: 100%;
+    max-width: 800px;
+}
+
+.menu-btn {
+    background: #fff;
+    border: 3px solid var(--ink);
+    padding: 20px 24px;
+    border-radius: 6px;
+    text-align: left;
+    cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.1s;
+    box-shadow: 4px 4px 0px var(--ink);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+.menu-btn:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0px var(--ink);
+}
+
+.special-election-btn {
+    background: linear-gradient(135deg, #fff 0%, #fffbf0 100%);
+    border-width: 4px;
+    position: relative;
+    overflow: hidden;
+}
+
+.special-tag {
+    position: absolute;
+    top: 15px;
+    right: -25px;
+    background: var(--red);
+    color: #fff;
+    font-family: 'Bangers', cursive;
+    font-size: 0.9rem;
+    padding: 4px 30px;
+    transform: rotate(45deg);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    letter-spacing: 1px;
+}
+
+.role-btn {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: stretch;
+    padding: 0;
+    overflow: hidden;
+}
+
+.role-char-preview {
+    width: 140px;
+    background: var(--pink);
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    border-right: 3px solid var(--ink);
+}
+
+.role-char-preview img {
+    width: 100%;
+    max-height: 180px;
+    object-fit: contain;
+    object-position: bottom;
+    display: block;
+}
+
+.role-content {
+    display: flex;
+    flex-direction: column;
+    padding: 15px 20px;
+    flex: 1;
+}
+
+.btn-title {
+    display: block;
+    font-family: 'Bangers', cursive;
+    font-size: 1.8rem;
+    color: var(--ink);
+    letter-spacing: 1.5px;
+    margin-bottom: 8px;
+}
+
+.menu-btn .btn-sub {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--ink);
+    opacity: 0.85;
+    display: block;
+    line-height: 1.4;
+    margin-bottom: 6px;
+}
+
+.role-stats {
+    margin-top: auto;
+    /* Push to bottom */
+    padding-top: 15px;
+    border-top: 2px dashed #ccc;
+    font-size: 0.85rem;
+    color: var(--ink);
+    font-weight: 600;
+    display: flex;
+    justify-content: space-between;
+}
+
+.btn-back {
+    margin-top: 1.5rem;
+    background: #fff;
+    border: 3px solid var(--pink);
+    color: var(--pink);
+    font-family: 'Outfit', sans-serif;
+    font-weight: 800;
+    font-size: 1rem;
+    padding: 0.6rem 2rem;
+    cursor: pointer;
+    box-shadow: 3px 3px 0 var(--pink);
+    transition: transform 0.1s;
+}
+
+.btn-back:hover {
+    transform: translate(-2px, -2px);
+}

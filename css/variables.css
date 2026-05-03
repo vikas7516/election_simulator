@@ -1,0 +1,52 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Permanent+Marker&family=Bangers&display=swap');
+
+:root {
+    --bg: #F5F7FA;
+    --panel-border: #2C3E50;
+    --yellow: #F1C40F;
+    --pink: #E74C3C;
+    --cyan: #3498DB;
+    --green: #27AE60;
+    --red: #C0392B;
+    --purple: #8E44AD;
+    --orange: #D35400;
+    --ink: #2C3E50;
+    --dialog-bg: #FFFFFF;
+    --card-bg: #FFFFFF;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    background: #EAECEE;
+    background-image:
+        radial-gradient(circle, #D5DBDB 1px, transparent 1px);
+    background-size: 22px 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    font-family: 'Inter', sans-serif;
+    overflow: hidden;
+}
+
+/* ── APP HOST ── */
+#app {
+    width: 95vw;
+    max-width: 1400px;
+    height: 95vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ── MAIN PANEL ── */
+.vn-container {
+    width: 100%;
+    height: 100%;
+    background: var(--bg);
+    position: relative;
+    border: 4px solid var(--panel-border);
+    box-shadow: 8px 8px 0 var(--panel-border);
+    overflow: hidden;
+}
+
