@@ -1,5 +1,6 @@
 import { AudioMixin } from './audio.js';
 import { UIMixin } from './ui.js';
+import { fetchMasterData, fetchElectionStory, generateGeminiContent } from './services.js';
 
 class ElectionSimulator {
     constructor() {
@@ -14,9 +15,7 @@ class ElectionSimulator {
 
     async loadData() {
         try {
-            const r = await fetch('data/data.json');
-            if (!r.ok) throw new Error('Failed');
-            this.data = await r.json();
+            this.data = await fetchMasterData();
             this.setState({ screen: 'START' });
         } catch {
             this.app.innerHTML = `<div style="padding:2rem;color:red;font-family:sans-serif">
@@ -27,9 +26,7 @@ class ElectionSimulator {
     async loadElectionData(electionKey) {
         if (this.storyCache[electionKey]) return this.storyCache[electionKey];
         const file = this.data.ELECTIONS[electionKey].file;
-        const r = await fetch(file);
-        if (!r.ok) throw new Error('Story file not found: ' + file);
-        const stories = await r.json();
+        const stories = await fetchElectionStory(electionKey, file);
         this.storyCache[electionKey] = stories;
         return stories;
     }

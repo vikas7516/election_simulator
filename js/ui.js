@@ -1,3 +1,5 @@
+import { generateGeminiContent } from './services.js';
+
 export const UIMixin = {
     // ── RENDER VISUAL CARD ──────────────────────────────────────────────
     renderVisual(v) {
@@ -250,9 +252,8 @@ export const UIMixin = {
             : '';
 
         // Hint box (dialog area, optional)
-        const hintEl = scene.hint
-            ? `<div class="hint-box" style="display:none;" id="hint-box"><strong>📌 Note:</strong> ${scene.hint}</div>`
-            : '';
+        // Render hint element block dynamically so Gemini knows where to mount it even if empty initially
+        const hintEl = `<div class="hint-box" style="display:none;" id="hint-box"></div>`;
 
         const rightPanelClass = isDetailed ? 'right-panel detailed-view' : 'right-panel standard-view';
 
@@ -286,18 +287,46 @@ export const UIMixin = {
         </div>
 
         <!-- CHOICES OVERLAY (hidden initially) -->
-        ${scene.choices ? `
         <div class="choices-overlay" id="choices-overlay" style="display:none">
-            <div class="choices-label">⚡ WHAT DO YOU DO?</div>
-            ${scene.choices.map((c, i) =>
-                `<button class="choice-btn" data-index="${i}">${c.text}</button>`
-            ).join('')}
+            <div class="choices-label" id="choices-label">⚡ LOADING SCENARIO FROM GEMINI AI...</div>
+            <div id="choices-container" style="display:flex; flex-direction:column; gap:16px; width:100%; align-items:center;"></div>
         </div>
-        ` : ''}
 
         <!-- FEEDBACK PANEL (hidden initially) -->
         <div class="feedback-panel" id="feedback-panel" style="display:none"></div>
         `;
+
+        // Start Gemini Async Generation
+        let geminiData = null;
+        generateGeminiContent(scene.dialog).then(data => {
+            geminiData = data;
+            if (data && data.choices) {
+                // Override scene choices
+                scene.choices = data.choices;
+            }
+            if (data && data.didYouKnow) {
+                scene.hint = `<strong>DID YOU KNOW?</strong> ${data.didYouKnow}`;
+            }
+            
+            // Render the fetched generated choices
+            const container = wrap.querySelector('#choices-container');
+            const label = wrap.querySelector('#choices-label');
+            if (container && label) {
+                label.textContent = "⚡ WHAT DO YOU DO?";
+                if (!scene.choices) {
+                    container.innerHTML = `<button class="btn-next" onclick="document.getElementById('btn-dialog-continue').click()">No choices available. Continue ➜</button>`;
+                } else {
+                    container.innerHTML = scene.choices.map((c, i) =>
+                        `<button class="choice-btn" data-index="${i}">${c.text}</button>`
+                    ).join('');
+                }
+                
+                // Re-bind choice click listeners since we just replaced innerHTML
+                container.querySelectorAll('.choice-btn').forEach(b => {
+                    b.onclick = () => this.handleChoice(+b.dataset.index);
+                });
+            }
+        });
 
         // Show prop image if asset exists
         const propImg = wrap.querySelector('#prop-img');
@@ -310,20 +339,25 @@ export const UIMixin = {
         this.isTyping = true;
         this.typeWriter(scene.dialog, dialogTextEl, () => {
             this.isTyping = false;
-            if (scene.hint) {
+            if (scene.hint || geminiData?.didYouKnow) {
+                const hintText = geminiData?.didYouKnow ? `<strong>DID YOU KNOW?</strong> ${geminiData.didYouKnow}` : scene.hint;
                 const hEl = wrap.querySelector('#hint-box');
-                if (hEl) hEl.style.display = 'block';
+                if (hEl) {
+                    hEl.innerHTML = hintText;
+                    hEl.style.display = 'block';
+                }
             }
-            if (continueBtn && scene.choices) {
+            if (continueBtn) {
                 continueBtn.style.display = 'inline-block';
                 continueBtn.onclick = () => {
-                    continueBtn.style.display = 'none';
-                    const overlay = wrap.querySelector('#choices-overlay');
-                    if (overlay) overlay.style.display = 'flex';
+                    if (scene.choices || geminiData?.choices) {
+                        continueBtn.style.display = 'none';
+                        const overlay = wrap.querySelector('#choices-overlay');
+                        if (overlay) overlay.style.display = 'flex';
+                    } else {
+                        this.nextScene();
+                    }
                 };
-            } else if (continueBtn && !scene.choices) {
-                continueBtn.style.display = 'inline-block';
-                continueBtn.onclick = () => this.nextScene();
             }
         });
 
