@@ -73,7 +73,30 @@ Respond strictly in JSON format matching this exact structure (an array of objec
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 contents: [{ parts: [{ text: prompt }] }],
-                generationConfig: { response_mime_type: "application/json" }
+                generationConfig: { 
+                    response_mime_type: "application/json",
+                    response_schema: {
+                        type: "ARRAY",
+                        items: {
+                            type: "OBJECT",
+                            properties: {
+                                sceneIndex: { type: "INTEGER" },
+                                choices: {
+                                    type: "ARRAY",
+                                    items: {
+                                        type: "OBJECT",
+                                        properties: {
+                                            text: { type: "STRING" },
+                                            isCorrect: { type: "BOOLEAN" },
+                                            feedback: { type: "STRING" }
+                                        }
+                                    }
+                                },
+                                didYouKnow: { type: "STRING" }
+                            }
+                        }
+                    }
+                }
             })
         });
         

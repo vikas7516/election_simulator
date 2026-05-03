@@ -247,14 +247,14 @@ export const UIMixin = {
 
         // Fact card
         const factEl = scene.fact
-            ? `<div class="fact-card"><strong>💡 DID YOU KNOW?</strong><br/>${scene.fact}</div>`
+            ? `<div class="fact-card" role="complementary" aria-label="Election Fact"><strong>💡 DID YOU KNOW?</strong><br/>${scene.fact}</div>`
             : '';
 
         const rightPanelClass = isDetailed ? 'right-panel detailed-view' : 'right-panel standard-view';
         
         const choicesHTML = (scene.choices && scene.choices.length > 0)
             ? scene.choices.map((c, i) => `<button class="choice-btn" data-index="${i}">${c.text}</button>`).join('')
-            : `<button class="btn-next" onclick="document.getElementById('btn-dialog-continue').click()">No choices available. Continue ➜</button>`;
+            : `<button class="btn-next" id="btn-no-choice">No choices available. Continue ➜</button>`;
 
         wrap.innerHTML = DOMPurify.sanitize(`
         <div class="scene-layout scene-fade-in">
@@ -299,6 +299,14 @@ export const UIMixin = {
         wrap.querySelectorAll('.choice-btn').forEach(b => {
             b.onclick = () => this.handleChoice(+b.dataset.index);
         });
+
+        const noChoiceBtn = wrap.querySelector('#btn-no-choice');
+        if (noChoiceBtn) {
+            noChoiceBtn.onclick = () => {
+                const cont = document.getElementById('btn-dialog-continue');
+                if (cont) cont.click();
+            };
+        }
 
         // Show prop image if asset exists
         const propImg = wrap.querySelector('#prop-img');
