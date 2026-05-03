@@ -26,7 +26,7 @@ class ElectionSimulator {
     async loadElectionData(electionKey) {
         if (this.storyCache[electionKey]) return this.storyCache[electionKey];
         const file = this.data.ELECTIONS[electionKey].file;
-        const stories = await fetchElectionStory(electionKey, file);
+        const stories = await fetchElectionStory(electionKey);
         this.storyCache[electionKey] = stories;
         return stories;
     }
@@ -121,23 +121,44 @@ class ElectionSimulator {
                     return;
                 }
                 
-                // Show a loading screen
-                this.app.querySelector('.vn-container').innerHTML = DOMPurify.sanitize(`<div class="screen"><div class="start-content"><h1 style="text-align:center; margin-top:20vh;">⚡ GENERATING ROLE WITH AI...</h1><p style="text-align:center;">Crafting scenarios, choices, and civic feedback...</p></div></div>`);
+                // Show a loading screen with progress bar
+                this.app.querySelector('.vn-container').innerHTML = DOMPurify.sanitize(`<div class="screen"><div class="start-content">
+                    <h1 style="text-align:center; margin-top:20vh;">⚡ GENERATING ROLE WITH AI...</h1>
+                    <p style="text-align:center;">Crafting scenarios, choices, and civic feedback...</p>
+                    <div style="width: 80%; max-width: 400px; height: 10px; background: #333; border-radius: 5px; margin: 20px auto; overflow: hidden;">
+                        <div id="ai-progress-bar" style="width: 0%; height: 100%; background: var(--green); transition: width 0.5s ease;"></div>
+                    </div>
+                </div></div>`);
                 
+                // Simulate progress bar
+                let progress = 0;
+                const progressInterval = setInterval(() => {
+                    progress += Math.random() * 15;
+                    if (progress > 90) progress = 90; // Hold at 90% until done
+                    const bar = document.getElementById('ai-progress-bar');
+                    if (bar) bar.style.width = \`\${progress}%\`;
+                }, 400);
+
                 // Fetch bulk choices
                 const generated = await generateGeminiContentBulk(story);
+                
+                clearInterval(progressInterval);
+                const bar = document.getElementById('ai-progress-bar');
+                if (bar) bar.style.width = '100%';
                 
                 // Override local story with AI choices if available
                 story.forEach((scene, i) => {
                     if (generated && generated[i]) {
                         scene.choices = generated[i].choices;
                         if (generated[i].didYouKnow) {
-                            scene.hint = `<strong>DID YOU KNOW?</strong> ${generated[i].didYouKnow}`;
+                            scene.fact = generated[i].didYouKnow;
                         }
                     }
                 });
 
-                this.setState({ role, story, sceneIndex: 0, screen: 'SIMULATION' });
+                setTimeout(() => {
+                    this.setState({ role, story, sceneIndex: 0, screen: 'SIMULATION' });
+                }, 500);
             };
         });
 

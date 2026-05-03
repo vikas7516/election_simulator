@@ -77,6 +77,10 @@
     max-width: 600px;
     line-height: 1.6;
     color: var(--ink);
+    background: #fff;
+    padding: 16px;
+    border: 3px solid var(--ink);
+    box-shadow: 4px 4px 0 var(--ink);
 }
 .btn-next {
     margin-top: 1.2rem;

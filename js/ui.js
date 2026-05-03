@@ -247,11 +247,8 @@ export const UIMixin = {
 
         // Fact card
         const factEl = scene.fact
-            ? `<div class="fact-card"><strong>💡 DID YOU KNOW?</strong>${scene.fact}</div>`
+            ? `<div class="fact-card"><strong>💡 DID YOU KNOW?</strong><br/>${scene.fact}</div>`
             : '';
-
-        // Hint box (dialog area, optional)
-        const hintEl = scene.hint ? `<div class="hint-box" style="display:none;" id="hint-box">${scene.hint}</div>` : `<div class="hint-box" style="display:none;" id="hint-box"></div>`;
 
         const rightPanelClass = isDetailed ? 'right-panel detailed-view' : 'right-panel standard-view';
         
@@ -283,7 +280,6 @@ export const UIMixin = {
             <div class="dialog-area" id="dialog-area">
                 <div class="speaker-name">${scene.speaker}</div>
                 <div class="dialog-text" id="dialog-text"></div>
-                ${hintEl}
                 <button class="btn-next" id="btn-dialog-continue" style="display:none; margin-top: 10px; align-self: flex-end;">Continue ➜</button>
             </div>
         </div>
@@ -315,13 +311,6 @@ export const UIMixin = {
         this.isTyping = true;
         this.typeWriter(scene.dialog, dialogTextEl, () => {
             this.isTyping = false;
-            if (scene.hint) {
-                const hEl = wrap.querySelector('#hint-box');
-                if (hEl) {
-                    hEl.innerHTML = DOMPurify.sanitize(scene.hint);
-                    hEl.style.display = 'block';
-                }
-            }
             if (continueBtn) {
                 continueBtn.style.display = 'inline-block';
                 continueBtn.onclick = () => {

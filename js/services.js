@@ -22,37 +22,23 @@ const db = getFirestore(app);
 const GEMINI_PROXY_URL = "/api/gemini/v1beta/models/gemini-2.5-flash:generateContent";
 
 export async function fetchMasterData() {
-    try {
-        const docRef = doc(db, "election_data", "master");
-        const docSnap = await getDoc(docRef);
-        
-        if (docSnap.exists()) {
-            console.log("Data fetched securely from Firebase Firestore!");
-            return docSnap.data();
-        }
-        throw new Error("Missing in DB");
-    } catch (e) {
-        console.warn("Firebase fetch failed, falling back to basic local data.json:", e);
-        const r = await fetch('data/data.json');
-        return await r.json();
+    const docRef = doc(db, "election_data", "master");
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+        console.log("Data fetched securely from Firebase Firestore!");
+        return docSnap.data();
     }
+    throw new Error("Master data missing in DB");
 }
 
-export async function fetchElectionStory(electionKey, localFile) {
-    try {
-        const docRef = doc(db, "election_stories", electionKey);
-        const docSnap = await getDoc(docRef);
-        
-        if (docSnap.exists()) {
-            console.log(`Story ${electionKey} fetched from Firebase!`);
-            return docSnap.data();
-        }
-        throw new Error("Missing in DB");
-    } catch (e) {
-        console.warn("Firebase story fetch failed, falling back to local file:", e);
-        const r = await fetch(localFile);
-        return await r.json();
+export async function fetchElectionStory(electionKey) {
+    const docRef = doc(db, "election_stories", electionKey);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+        console.log(`Story ${electionKey} fetched from Firebase!`);
+        return docSnap.data();
     }
+    throw new Error(`Story ${electionKey} missing in DB`);
 }
 
 export async function generateGeminiContentBulk(storyArray) {
@@ -67,8 +53,9 @@ Your task is to generate dynamic, challenging, and highly educational choices fo
 1. Create 4 plausible choices a user could make for each scene. 
    - 1 must be the absolute correct protocol according to the Election Commission of India (ECI) guidelines.
    - 3 should be common mistakes, misconceptions, or plausible-sounding but illegal/incorrect actions.
+   - IMPORTANT: Randomize the position of the correct choice! It should NOT always be the first choice.
 2. For each choice, provide rich feedback explaining *why* it's right or wrong, citing specific rules, consequences, or mechanics if applicable.
-3. Provide a fascinating "Did You Know?" fact about Indian elections related to each specific topic to display as a hint.
+3. Provide a fascinating "Did You Know?" fact about Indian elections related to each specific topic. This will be displayed in the right-side information panel during the scene.
 4. Ensure the tone is immersive, slightly dramatic (like a game), but fundamentally educational.
 
 Respond strictly in JSON format matching this exact structure (an array of objects, one for each scene in order):
