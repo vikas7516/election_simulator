@@ -2,6 +2,10 @@ import { AudioMixin } from './audio.js';
 import { UIMixin } from './ui.js';
 import { fetchMasterData, fetchElectionStory, generateGeminiContentBulk } from './services.js';
 
+/**
+ * Core engine for the Indian Election Simulator.
+ * Manages game state, user interactions, audio playback, and AI content generation.
+ */
 class ElectionSimulator {
     constructor() {
         this.app = document.getElementById('app');
@@ -13,16 +17,25 @@ class ElectionSimulator {
         this.loadData();
     }
 
+    /**
+     * Fetches the initial master data (elections and roles) from Firebase.
+     * Transitions to the START screen upon success.
+     */
     async loadData() {
         try {
             this.data = await fetchMasterData();
             this.setState({ screen: 'START' });
         } catch {
-            this.app.innerHTML = DOMPurify.sanitize(`<div style="padding:2rem;color:red;font-family:sans-serif">
+            this.app.innerHTML = DOMPurify.sanitize(`<div class="error-msg">
                 Error: Could not load data from Firebase. Check your console.</div>`);
         }
     }
 
+    /**
+     * Loads narrative story data for a specific election tier.
+     * @param {string} electionKey - The unique key for the election (e.g., 'LOK_SABHA').
+     * @returns {Promise<Object>} The story data object.
+     */
     async loadElectionData(electionKey) {
         if (this.storyCache[electionKey]) return this.storyCache[electionKey];
         const stories = await fetchElectionStory(electionKey);
@@ -30,6 +43,10 @@ class ElectionSimulator {
         return stories;
     }
 
+    /**
+     * Updates the global state and triggers a re-render.
+     * @param {Object} s - Partial state object to merge.
+     */
     setState(s) { this.state = { ...this.state, ...s }; this.render(); }
 
     showNotification(msg, type = 'error') {
@@ -39,13 +56,17 @@ class ElectionSimulator {
         note.id = 'app-notification';
         note.setAttribute('role', 'alert');
         note.setAttribute('aria-live', 'assertive');
-        note.style.cssText = `position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:9999;padding:14px 28px;font-family:'Inter',sans-serif;font-weight:700;font-size:1rem;border:3px solid var(--ink);box-shadow:4px 4px 0 var(--ink);background:${type==='error'?'#ffeaea':'#eaffea'};color:var(--ink);max-width:90vw;text-align:center;`;
+        note.className = `notification-box ${type==='error'?'notification-error':'notification-info'}`;
         note.textContent = msg;
         document.body.appendChild(note);
         setTimeout(() => note.remove(), 4000);
     }
 
     // ── CHOICE HANDLER ───────────────────────────────────────────────────
+    /**
+     * Evaluates a user's choice and displays the feedback panel.
+     * @param {number} idx - The index of the selected choice.
+     */
     handleChoice(idx) {
         this.initAudio();
         const scene = this.state.story[this.state.sceneIndex];
@@ -89,6 +110,12 @@ class ElectionSimulator {
         }
     }
 
+    /**
+     * Initializes a specific role for a chosen election and fetches AI-generated scenarios.
+     * @param {string} role - The role ID (voter, candidate, etc.).
+     * @param {Array} story - The base story array.
+     * @param {string} electionKey - The election ID.
+     */
     async startRole(role, story, electionKey) {
         if (!story || story.length === 0) {
             this.showNotification('This story is coming soon! Check back later.', 'info');
@@ -97,10 +124,10 @@ class ElectionSimulator {
 
         // Show a loading screen with progress bar
         this.app.innerHTML = DOMPurify.sanitize(`<div class="screen"><div class="start-content">
-            <h1 style="text-align:center; margin-top:20vh;">⚡ GENERATING ROLE WITH AI...</h1>
-            <p style="text-align:center;">Crafting scenarios, choices, and civic feedback...</p>
-            <div style="width: 80%; max-width: 400px; height: 10px; background: #333; border-radius: 5px; margin: 20px auto; overflow: hidden;">
-                <div id="ai-progress-bar" style="width: 0%; height: 100%; background: var(--green); transition: width 0.5s ease;"></div>
+            <h1 class="text-center mt-20vh">⚡ GENERATING ROLE WITH AI...</h1>
+            <p class="text-center">Crafting scenarios, choices, and civic feedback...</p>
+            <div class="ai-progress-track">
+                <div id="ai-progress-bar" class="ai-progress-bar"></div>
             </div>
         </div></div>`);
         
@@ -110,7 +137,10 @@ class ElectionSimulator {
             progress += Math.random() * 15;
             if (progress > 90) progress = 90;
             const bar = document.getElementById('ai-progress-bar');
-            if (bar) bar.style.width = progress + '%';
+            if (bar) {
+                const step = Math.floor(progress / 20) * 20;
+                bar.setAttribute('data-progress', step.toString());
+            }
         }, 400);
 
         // Fetch bulk choices
@@ -118,7 +148,7 @@ class ElectionSimulator {
         
         clearInterval(progressInterval);
         const bar = document.getElementById('ai-progress-bar');
-        if (bar) bar.style.width = '100%';
+        if (bar) bar.setAttribute('data-progress', '100');
         
         // Override local story with AI choices if available
         story.forEach((scene, i) => {
@@ -189,8 +219,8 @@ class ElectionSimulator {
             b.onmouseenter = () => this.playHover();
         });
 
-        // Keyboard navigation
-        document.onkeydown = (e) => {
+        // Keyboard navigation — use addEventListener for cleaner code quality
+        this._onKeydown = (e) => {
             if (this.state.screen === 'SIMULATION') {
                 const overlay = document.getElementById('choices-overlay');
                 const fp = document.getElementById('feedback-panel');
@@ -203,10 +233,8 @@ class ElectionSimulator {
                     }
                 } else if (fp && fp.style.display !== 'none') {
                     if (e.key === 'Enter') {
-                        const nextBtn = fp.querySelector('#btn-next');
-                        const retryBtn = fp.querySelector('#btn-retry');
+                        const nextBtn = fp.querySelector('#btn-next') || fp.querySelector('#btn-retry');
                         if (nextBtn) nextBtn.click();
-                        else if (retryBtn) retryBtn.click();
                     }
                 } else {
                     if (e.key === 'Enter') {
@@ -216,6 +244,7 @@ class ElectionSimulator {
                 }
             }
         };
+        document.addEventListener('keydown', this._onKeydown);
     }
 }
 

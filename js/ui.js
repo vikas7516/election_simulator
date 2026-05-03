@@ -1,6 +1,11 @@
 // UI Mixin
 export const UIMixin = {
     // ── RENDER VISUAL CARD ──────────────────────────────────────────────
+    /**
+     * Renders a visual data card (info, checklist, stats, etc.) based on type.
+     * @param {Object} v - Visual data object.
+     * @returns {string} Sanitized HTML string.
+     */
     renderVisual(v) {
         if (!v) return '';
         const accent = v.color ? `accent-${v.color}` : '';
@@ -29,7 +34,7 @@ export const UIMixin = {
         }
         if (v.type === 'stat_card') {
             return `<div class="visual-card stat-card ${accent}">
-                <span class="stat-big" style="color:var(--${v.color || 'cyan'})">${v.stat}</span>
+                <span class="stat-big stat-value" data-color="${v.color || 'cyan'}">${v.stat}</span>
                 <span class="stat-label">${v.label}</span>
                 ${v.context ? `<div class="stat-context">${v.context}</div>` : ''}
             </div>`;
@@ -82,6 +87,9 @@ export const UIMixin = {
     },
 
     // ── MAIN RENDER ─────────────────────────────────────────────────────
+    /**
+     * Master render function. Clears the app container and mounts the current screen.
+     */
     render() {
         if (!this.app) return;
         this.app.innerHTML = '';
@@ -177,7 +185,7 @@ export const UIMixin = {
             const e = this.data.ELECTIONS[k];
             const isSpecial = e.isSpecial ? 'special-election-btn' : '';
             const specialTag = e.isSpecial ? '<div class="special-tag">⭐ SPECIAL</div>' : '';
-            return `<button class="menu-btn election-btn ${isSpecial}" data-election="${k}" style="border-left-color: ${e.color}">
+            return `<button class="menu-btn election-btn ${isSpecial}" data-election="${k}">
                 ${specialTag}
                 <span class="btn-title">${e.title}</span>
                 <span class="btn-sub">${e.subtitle}</span>
@@ -219,6 +227,10 @@ export const UIMixin = {
             <button class="btn-back" id="btn-back" aria-label="Go Back">← BACK</button>
         </div>`);
     },
+    /**
+     * Renders a simulation scene with character panels, visual data, and interactive dialogue.
+     * @param {HTMLElement} wrap - The container element.
+     */
     renderScene(wrap) {
         const scene = this.state.story[this.state.sceneIndex];
         const el = this.data.ELECTIONS[this.state.election];
@@ -257,7 +269,7 @@ export const UIMixin = {
                 <span class="election-tag">${el.title}</span>
                 <span>${this.state.role.toUpperCase()}</span>
                 <span class="scene-counter">SCENE ${this.state.sceneIndex + 1} / ${this.state.story.length}</span>
-                <button class="btn-leave" id="btn-leave" title="Exit Simulation">✖ EXIT</button>
+                <button class="btn-leave" id="btn-leave" title="Exit Simulation" aria-label="Exit Simulation">✖ EXIT</button>
             </div>
 
             <!-- LEFT: CHARACTER -->
@@ -338,6 +350,12 @@ export const UIMixin = {
             };
         }
     },
+    /**
+     * Simulates a typewriter effect for dialogue text.
+     * @param {string} text - The text to type.
+     * @param {HTMLElement} el - The element to inject text into.
+     * @param {Function} onDone - Callback when typing completes.
+     */
     typeWriter(text, el, onDone) {
         if (this.typeWriterIv) clearInterval(this.typeWriterIv);
         el.textContent = '';
@@ -364,11 +382,17 @@ export const UIMixin = {
             <div class="end-screen">
                 <h1>🏆 MISSION COMPLETE!</h1>
                 <p>You experienced <strong>${el.title}</strong> as <strong>${this.state.role}</strong>.</p>
-                <p style="font-size:0.9rem;color:#555;margin-bottom:1.5rem">
-                    You learned how real Indian democracy works — step by step!
-                </p>
-                <div style="display:flex;justify-content:center;">
-                    <button class="btn-exit-confirm" id="btn-restart" style="border-radius: 6px;">
+                <div class="mission-summary">
+                    <h3>📚 KNOWLEDGE ACQUIRED:</h3>
+                    <ul>
+                        <li>✅ Official ECI Protocols and Guidelines</li>
+                        <li>✅ Critical Stakeholder Decision Making</li>
+                        <li>✅ Democratic Values and Procedure</li>
+                        <li>✅ Real-world Election Scenarios</li>
+                    </ul>
+                </div>
+                <div class="flex-center mt-20">
+                    <button class="btn-exit-confirm br-6" id="btn-restart">
                         🔄 PLAY AGAIN
                     </button>
                 </div>

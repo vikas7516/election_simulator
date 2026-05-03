@@ -1,0 +1,113 @@
+/* Utility styles to eliminate 'unsafe-inline' CSP requirement */
+
+.notification-box {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+    padding: 14px 28px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    border: 3px solid var(--ink);
+    box-shadow: 4px 4px 0 var(--ink);
+    max-width: 90vw;
+    text-align: center;
+}
+
+.notification-error { background: #ffeaea; color: var(--ink); }
+.notification-info  { background: #eaffea; color: var(--ink); }
+
+.ai-loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    text-align: center;
+}
+
+.ai-progress-track {
+    width: 80%;
+    max-width: 400px;
+    height: 10px;
+    background: #333;
+    border-radius: 5px;
+    margin: 20px auto;
+    overflow: hidden;
+}
+
+.ai-progress-bar {
+    width: 0%;
+    height: 100%;
+    background: var(--green);
+    transition: width 0.5s ease;
+}
+
+/* Progress steps to avoid inline width styles */
+.ai-progress-bar[data-progress="0"]   { width: 0%; }
+.ai-progress-bar[data-progress="20"]  { width: 20%; }
+.ai-progress-bar[data-progress="40"]  { width: 40%; }
+.ai-progress-bar[data-progress="60"]  { width: 60%; }
+.ai-progress-bar[data-progress="80"]  { width: 80%; }
+.ai-progress-bar[data-progress="100"] { width: 100%; }
+
+/* Election Themes */
+.election-btn[data-election="LOK_SABHA"]     { border-left-color: var(--cyan); }
+.election-btn[data-election="VIDHAN_SABHA"]  { border-left-color: var(--pink); }
+.election-btn[data-election="RAJYA_SABHA"]   { border-left-color: var(--yellow); }
+.election-btn[data-election="PRESIDENT"]     { border-left-color: var(--green); }
+.election-btn[data-election="PM"]            { border-left-color: var(--orange); }
+
+.stat-value[data-color="cyan"]   { color: var(--cyan); }
+.stat-value[data-color="green"]  { color: var(--green); }
+.stat-value[data-color="pink"]   { color: var(--pink); }
+.stat-value[data-color="yellow"] { color: var(--yellow); }
+
+.mission-summary {
+    background: rgba(0,0,0,0.05);
+    padding: 20px;
+    border-radius: 12px;
+    margin: 20px 0;
+    text-align: left;
+}
+.mission-summary h3 {
+    margin-top: 0;
+    font-size: 1.1rem;
+    color: var(--ink);
+}
+.mission-summary ul {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0 0 0;
+}
+.mission-summary li {
+    margin: 8px 0;
+    font-size: 0.95rem;
+}
+
+.text-center { text-align: center; }
+.mt-20vh { margin-top: 20vh; }
+.error-msg { padding: 2rem; color: red; font-family: sans-serif; }
+
+.flex-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.mt-20 { margin-top: 20px; }
+.br-6 { border-radius: 6px; }
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0,0,0,0);
+    white-space: nowrap;
+    border: 0;
+}

@@ -21,13 +21,13 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 
-const GEMINI_PROXY_URL = "/api/gemini/v1beta/models/gemini-2.5-flash:generateContent";
+const GEMINI_PROXY_URL = "/api/gemini/v1beta/models/gemini-1.5-flash:generateContent";
 
 export async function fetchMasterData() {
     const docRef = doc(db, "election_data", "master");
     const docSnap = await getDoc(docRef);
     if (docSnap.exists()) {
-        console.log("Data fetched securely from Firebase Firestore!");
+
         return docSnap.data();
     }
     throw new Error("Master data missing in DB");
@@ -37,7 +37,7 @@ export async function fetchElectionStory(electionKey) {
     const docRef = doc(db, "election_stories", electionKey);
     const docSnap = await getDoc(docRef);
     if (docSnap.exists()) {
-        console.log(`Story ${electionKey} fetched from Firebase!`);
+
         return docSnap.data();
     }
     throw new Error(`Story ${electionKey} missing in DB`);
@@ -107,7 +107,7 @@ Respond strictly in JSON format matching this exact structure (an array of objec
         // Handle both pre-parsed JSON (structured output) and string responses
         return typeof raw === 'string' ? JSON.parse(raw) : raw;
     } catch (e) {
-        console.error("Gemini Bulk Generation failed:", e);
+
         return null;
     }
 }

@@ -1,4 +1,12 @@
+/**
+ * Audio synthesis module for the simulation.
+ * Uses the Web Audio API to generate procedural sounds without external assets.
+ * @module AudioMixin
+ */
 export const AudioMixin = {
+    /**
+     * Initializes the AudioContext upon user interaction.
+     */
     initAudio() {
         if (!this.audioCtx) {
             this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();

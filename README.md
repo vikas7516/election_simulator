@@ -2,7 +2,7 @@
 
 > **An immersive, AI-powered, comic-style civic education simulator** that demystifies Indian Democracy — playable in your browser, powered by Gemini AI.
 
-🔗 **Live Demo:** [https://election-simulator-393226308231.asia-south1.run.app](https://election-simulator-393226308231.asia-south1.run.app)
+🔗 **Live Demo:** [Indian Election Simulator](https://election-simulator-393226308231.asia-south1.run.app)
 
 ---
 
