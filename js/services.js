@@ -19,7 +19,7 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 
-const GEMINI_PROXY_URL = "/api/gemini/v1beta/models/gemini-1.5-flash:generateContent";
+const GEMINI_PROXY_URL = "/api/gemini/v1beta/models/gemini-2.5-flash:generateContent";
 
 export async function fetchMasterData() {
     try {
@@ -57,17 +57,21 @@ export async function fetchElectionStory(electionKey, localFile) {
 
 export async function generateGeminiContent(sceneText) {
    
-    const prompt = `Given the following scenario from an Indian Election simulation game:
+    const prompt = `You are an expert civic educator designing a scenario for an engaging, gamified Indian Election simulation.
+Given the following scenario text from the game:
 "${sceneText}"
 
-Generate:
-1. 4 plausible educational choices a user could make. 1 should be the correct highly-detailed civic protocol, 3 should be common mistakes.
-2. For each choice, provide feedback explaining why it's right or wrong.
-3. Provide a short "Did You Know?" fact about Indian elections related to this.
+Your task is to generate dynamic, challenging, and highly educational choices for the player.
+1. Create 4 plausible choices a user could make in this situation. 
+   - 1 must be the absolute correct protocol according to the Election Commission of India (ECI) guidelines.
+   - 3 should be common mistakes, misconceptions, or plausible-sounding but illegal/incorrect actions.
+2. For each choice, provide rich feedback explaining *why* it's right or wrong, citing specific rules, consequences, or mechanics if applicable.
+3. Provide a fascinating "Did You Know?" fact about Indian elections related to this specific topic to display as a hint.
+4. Ensure the tone is immersive, slightly dramatic (like a game), but fundamentally educational.
 
 Respond strictly in JSON format matching this exact structure:
 {
-  "choices": [ { "text": "...", "isCorrect": true, "feedback": "..." } ],
+  "choices": [ { "text": "...", "isCorrect": true/false, "feedback": "..." } ],
   "didYouKnow": "..."
 }`;
 
