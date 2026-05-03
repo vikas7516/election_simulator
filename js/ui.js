@@ -114,7 +114,7 @@ export const UIMixin = {
         this.attachListeners();
     },
     renderStartScreen(wrap) {
-        wrap.innerHTML = `<div class="screen" style="overflow-y:auto;">
+        wrap.innerHTML = DOMPurify.sanitize(`<div class="screen" style="overflow-y:auto;">
             <div class="start-content">
 
                 <!-- Badge row -->
@@ -191,10 +191,10 @@ export const UIMixin = {
                 <span class="btn-sub" style="margin-top:4px">${e.desc}</span>
             </button>`;
         }).join('');
-        wrap.innerHTML = `<div class="screen" style="overflow-y:auto;">
+        wrap.innerHTML = DOMPurify.sanitize(`<div class="screen" style="overflow-y:auto;">
             <div class="screen-header">⚡ CHOOSE THE ELECTION TYPE</div>
             <div class="menu-grid">${btns}</div>
-        </div>`;
+        </div>`);
     },
     renderMenuRole(wrap) {
         const stories = this.storyCache[this.state.election];
@@ -203,7 +203,7 @@ export const UIMixin = {
             const charImg = (story && story.length > 0 && story[0].char) ? story[0].char : null;
             
             const charPreview = charImg 
-                ? `<div class="role-char-preview"><img src="assets/${charImg}"></div>`
+                ? `<div class="role-char-preview"><img src="assets/${charImg}" alt="Role preview for ${r.title}"></div>`
                 : '';
 
             const stats = r.stats ? `<div class="role-stats">
@@ -220,11 +220,11 @@ export const UIMixin = {
             </button>`;
         }).join('');
         const el = this.data.ELECTIONS[this.state.election];
-        wrap.innerHTML = `<div class="screen" style="overflow-y:auto;">
+        wrap.innerHTML = DOMPurify.sanitize(`<div class="screen" style="overflow-y:auto;">
             <div class="screen-header">${el.title} — SELECT ROLE</div>
             <div class="menu-grid">${btns}</div>
-            <button class="btn-back" id="btn-back">← BACK</button>
-        </div>`;
+            <button class="btn-back" id="btn-back" aria-label="Go Back">← BACK</button>
+        </div>`);
     },
     renderScene(wrap) {
         const scene = this.state.story[this.state.sceneIndex];
@@ -232,8 +232,8 @@ export const UIMixin = {
 
         // Character (left panel)
         const charEl = (scene.char && scene.char !== 'None')
-            ? `<img src="assets/${scene.char}" class="char-sprite">`
-            : `<div class="char-fallback">👤</div>`;
+            ? `<img src="assets/${scene.char}" class="char-sprite" alt="Character: ${scene.speaker || 'Speaker'}">`
+            : `<div class="char-fallback" aria-label="No character image">👤</div>`;
 
         // Visual card (right panel top)
         const visualEl = this.renderVisual(scene.visual);
@@ -243,7 +243,7 @@ export const UIMixin = {
         const isDetailed = scene.asset && detailedProps.includes(scene.asset);
         
         const propEl = scene.asset
-            ? `<img src="assets/${scene.asset}" class="prop-image" id="prop-img">`
+            ? `<img src="assets/${scene.asset}" class="prop-image" id="prop-img" alt="Prop: ${scene.asset.split('.')[0]}">`
             : '';
 
         // Fact card
@@ -256,8 +256,8 @@ export const UIMixin = {
         const hintEl = `<div class="hint-box" style="display:none;" id="hint-box"></div>`;
 
         const rightPanelClass = isDetailed ? 'right-panel detailed-view' : 'right-panel standard-view';
-
-        wrap.innerHTML = `
+        
+        wrap.innerHTML = DOMPurify.sanitize(`
         <div class="scene-layout scene-fade-in">
             <!-- TOP BAR -->
             <div class="top-bar">
@@ -287,14 +287,14 @@ export const UIMixin = {
         </div>
 
         <!-- CHOICES OVERLAY (hidden initially) -->
-        <div class="choices-overlay" id="choices-overlay" style="display:none">
+        <div class="choices-overlay" id="choices-overlay" style="display:none" role="dialog" aria-modal="true" aria-labelledby="choices-label">
             <div class="choices-label" id="choices-label">⚡ LOADING SCENARIO FROM GEMINI AI...</div>
             <div id="choices-container" style="display:flex; flex-direction:column; gap:16px; width:100%; align-items:center;"></div>
         </div>
 
         <!-- FEEDBACK PANEL (hidden initially) -->
-        <div class="feedback-panel" id="feedback-panel" style="display:none"></div>
-        `;
+        <div class="feedback-panel" id="feedback-panel" style="display:none" role="dialog" aria-modal="true"></div>
+        `);
 
         // Start Gemini Async Generation
         let geminiData = null;
@@ -314,11 +314,11 @@ export const UIMixin = {
             if (container && label) {
                 label.textContent = "⚡ WHAT DO YOU DO?";
                 if (!scene.choices) {
-                    container.innerHTML = `<button class="btn-next" onclick="document.getElementById('btn-dialog-continue').click()">No choices available. Continue ➜</button>`;
+                    container.innerHTML = DOMPurify.sanitize(`<button class="btn-next" onclick="document.getElementById('btn-dialog-continue').click()">No choices available. Continue ➜</button>`);
                 } else {
-                    container.innerHTML = scene.choices.map((c, i) =>
+                    container.innerHTML = DOMPurify.sanitize(scene.choices.map((c, i) =>
                         `<button class="choice-btn" data-index="${i}">${c.text}</button>`
-                    ).join('');
+                    ).join(''));
                 }
                 
                 // Re-bind choice click listeners since we just replaced innerHTML
@@ -392,7 +392,7 @@ export const UIMixin = {
     },
     renderEnd(wrap) {
         const el = this.data.ELECTIONS[this.state.election];
-        wrap.innerHTML = `<div class="screen" style="overflow-y:auto;">
+        wrap.innerHTML = DOMPurify.sanitize(`<div class="screen" style="overflow-y:auto;">
             <div class="end-screen">
                 <h1>🏆 MISSION COMPLETE!</h1>
                 <p>You experienced <strong>${el.title}</strong> as <strong>${this.state.role}</strong>.</p>
@@ -405,7 +405,7 @@ export const UIMixin = {
                     </button>
                 </div>
             </div>
-        </div>`;
+        </div>`);
     },
 
     showExitModal() {
@@ -414,15 +414,15 @@ export const UIMixin = {
         const modal = document.createElement('div');
         modal.className = 'exit-modal-overlay';
         modal.id = 'exit-modal';
-        modal.innerHTML = `
-            <div class="exit-modal-box">
-                <h2>✖ EXIT SIMULATION?</h2>
+        modal.innerHTML = DOMPurify.sanitize(`
+            <div class="exit-modal-box" role="dialog" aria-modal="true" aria-labelledby="exit-modal-title">
+                <h2 id="exit-modal-title">✖ EXIT SIMULATION?</h2>
                 <p>Your progress will be lost.<br>Are you sure you want to leave?</p>
                 <div class="exit-modal-actions">
                     <button class="btn-exit-cancel" id="btn-exit-cancel">STAY IN</button>
                     <button class="btn-exit-confirm" id="btn-exit-confirm">LEAVE</button>
                 </div>
-            </div>`;
+            </div>`);
         this.app.querySelector('.vn-container').appendChild(modal);
         document.getElementById('btn-exit-cancel').onclick = () => modal.remove();
         document.getElementById('btn-exit-confirm').onclick = () => {

@@ -48,14 +48,14 @@ class ElectionSimulator {
         const fp = wrap.querySelector('#feedback-panel');
         fp.className = `feedback-panel ${choice.isCorrect ? 'correct' : 'wrong'}`;
         fp.style.display = 'flex';
-        fp.innerHTML = `
+        fp.innerHTML = DOMPurify.sanitize(`
             <div class="feedback-title">${choice.isCorrect ? '✅ CORRECT!' : '❌ WRONG MOVE!'}</div>
             <div class="feedback-text">${choice.feedback}</div>
             ${choice.isCorrect
                 ? `<button class="btn-next" id="btn-next">NEXT SCENE ➜</button>`
                 : `<button class="btn-next" id="btn-retry" style="box-shadow:3px 3px 0 var(--red)">TRY AGAIN ↩</button>`
             }
-        `;
+        `);
 
         const nextBtn = fp.querySelector('#btn-next');
         if (nextBtn) nextBtn.onclick = () => this.nextScene();
