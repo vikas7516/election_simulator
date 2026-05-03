@@ -154,3 +154,57 @@
     grid-column: 1 / -1;
 }
 
+/* ── RESPONSIVENESS ── */
+@media (max-width: 768px) {
+    .scene-layout {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto 1fr auto;
+    }
+    
+    .char-panel {
+        grid-column: 1;
+        grid-row: 2;
+        height: 180px;
+        border-right: none;
+        border-bottom: 4px solid var(--ink);
+    }
+    
+    .char-sprite {
+        height: 100%;
+        width: auto;
+    }
+
+    .right-panel {
+        grid-column: 1;
+        grid-row: 3;
+        padding: 1rem;
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    
+    .right-panel .prop-image {
+        grid-column: 1;
+        grid-row: auto;
+        max-height: 200px;
+    }
+    
+    .right-panel .visual-card,
+    .right-panel .fact-card {
+        grid-column: 1;
+    }
+    
+    .top-bar {
+        font-size: 0.9rem;
+        padding: 5px 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .char-panel {
+        height: 140px;
+    }
+    .right-panel {
+        padding: 0.8rem;
+    }
+}
+

@@ -27,7 +27,6 @@ body {
     justify-content: center;
     min-height: 100vh;
     font-family: 'Inter', sans-serif;
-    overflow: hidden;
 }
 
 /* ── APP HOST ── */
@@ -37,6 +36,15 @@ body {
     height: 95vh;
     display: flex;
     flex-direction: column;
+    margin: 10px auto;
+}
+
+@media (max-width: 768px) {
+    #app {
+        width: 100vw;
+        height: 100vh;
+        margin: 0;
+    }
 }
 
 /* ── MAIN PANEL ── */

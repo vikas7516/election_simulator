@@ -113,65 +113,65 @@ export const UIMixin = {
     },
     renderStartScreen(wrap) {
         wrap.innerHTML = `<div class="screen" style="overflow-y:auto;">
-            <div style="max-width: 860px; width:100%; text-align: center; display: flex; flex-direction: column; align-items: center; padding: 0.5rem 0;">
+            <div class="start-content">
 
                 <!-- Badge row -->
-                <div style="display:flex; gap:10px; margin-bottom:12px; flex-wrap:wrap; justify-content:center;">
-                    <span style="background:var(--yellow);border:2px solid var(--ink);font-family:'Bangers',cursive;font-size:0.9rem;padding:4px 14px;letter-spacing:1px;">🗳️ CIVIC TECH</span>
-                    <span style="background:var(--cyan);color:#fff;border:2px solid var(--ink);font-family:'Bangers',cursive;font-size:0.9rem;padding:4px 14px;letter-spacing:1px;">🎮 GAMIFIED EDTECH</span>
-                    <span style="background:var(--green);color:#fff;border:2px solid var(--ink);font-family:'Bangers',cursive;font-size:0.9rem;padding:4px 14px;letter-spacing:1px;">🇮🇳 INDIA</span>
+                <div class="start-badges">
+                    <span class="badge yellow">🗳️ CIVIC TECH</span>
+                    <span class="badge cyan">🎮 GAMIFIED EDTECH</span>
+                    <span class="badge green">🇮🇳 INDIA</span>
                 </div>
 
-                <h1 style="font-family:'Bangers',cursive;font-size:3.8rem;color:var(--ink);margin-bottom:4px;letter-spacing:3px;line-height:1;text-shadow:4px 4px 0 var(--yellow);">INDIAN ELECTION</h1>
-                <h1 style="font-family:'Bangers',cursive;font-size:3.8rem;color:var(--ink);margin-bottom:12px;letter-spacing:3px;line-height:1;text-shadow:4px 4px 0 var(--cyan);">SIMULATOR</h1>
+                <h1 class="start-title t1">INDIAN ELECTION</h1>
+                <h1 class="start-title t2">SIMULATOR</h1>
 
-                <p style="font-size:1.05rem;line-height:1.5;color:#444;margin-bottom:18px;font-weight:500;max-width:680px;">
+                <p class="start-subtitle">
                     Experience the <strong>immense scale and depth</strong> of Indian Democracy. Step into the shoes of those who <em>make elections happen</em> — Voters, Candidates, Officials and Observers.
                 </p>
 
                 <!-- Stat pills -->
-                <div style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;justify-content:center;">
-                    <div style="background:#fff;border:3px solid var(--ink);box-shadow:3px 3px 0 var(--ink);padding:10px 16px;text-align:center;">
-                        <div style="font-family:'Bangers',cursive;font-size:1.8rem;color:var(--cyan);">5</div>
-                        <div style="font-size:0.75rem;font-weight:700;color:#555;">ELECTION TYPES</div>
+                <div class="start-pills">
+                    <div class="pill">
+                        <div class="pill-num cyan">5</div>
+                        <div class="pill-label">ELECTION TYPES</div>
                     </div>
-                    <div style="background:#fff;border:3px solid var(--ink);box-shadow:3px 3px 0 var(--ink);padding:10px 16px;text-align:center;">
-                        <div style="font-family:'Bangers',cursive;font-size:1.8rem;color:var(--pink);">4</div>
-                        <div style="font-size:0.75rem;font-weight:700;color:#555;">PLAYABLE ROLES</div>
+                    <div class="pill">
+                        <div class="pill-num pink">4</div>
+                        <div class="pill-label">PLAYABLE ROLES</div>
                     </div>
-                    <div style="background:#fff;border:3px solid var(--ink);box-shadow:3px 3px 0 var(--ink);padding:10px 16px;text-align:center;">
-                        <div style="font-family:'Bangers',cursive;font-size:1.8rem;color:var(--green);">50+</div>
-                        <div style="font-size:0.75rem;font-weight:700;color:#555;">REAL SCENARIOS</div>
+                    <div class="pill">
+                        <div class="pill-num green">50+</div>
+                        <div class="pill-label">REAL SCENARIOS</div>
                     </div>
                 </div>
 
                 <!-- How to play -->
-                <div style="background:#fff;border:3px solid var(--ink);box-shadow:4px 4px 0 var(--ink);padding:18px 24px;margin-bottom:20px;text-align:left;width:100%;box-sizing:border-box;">
-                    <h3 style="font-family:'Bangers',cursive;font-size:1.6rem;margin-bottom:10px;color:var(--ink);letter-spacing:1.5px;">📖 HOW TO PLAY</h3>
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 16px;">
-                        <div style="display:flex;gap:10px;align-items:flex-start;">
-                            <span style="font-family:'Bangers',cursive;background:var(--ink);color:#fff;padding:2px 8px;font-size:1rem;flex-shrink:0;">1</span>
-                            <span style="font-size:0.95rem;font-weight:500;line-height:1.4;">Choose your election type — Lok Sabha, State, Rajya Sabha and more.</span>
+                <div class="start-how-to">
+                    <h3 class="how-to-title">📖 HOW TO PLAY</h3>
+                    <div class="how-to-grid">
+                        <div class="how-to-step">
+                            <span class="step-badge">1</span>
+                            <span class="step-text">Choose your election type — Lok Sabha, State, Rajya Sabha and more.</span>
                         </div>
-                        <div style="display:flex;gap:10px;align-items:flex-start;">
-                            <span style="font-family:'Bangers',cursive;background:var(--ink);color:#fff;padding:2px 8px;font-size:1rem;flex-shrink:0;">2</span>
-                            <span style="font-size:0.95rem;font-weight:500;line-height:1.4;">Pick your role — Voter, Candidate, Official, or Observer.</span>
+                        <div class="how-to-step">
+                            <span class="step-badge">2</span>
+                            <span class="step-text">Pick your role — Voter, Candidate, Official, or Observer.</span>
                         </div>
-                        <div style="display:flex;gap:10px;align-items:flex-start;">
-                            <span style="font-family:'Bangers',cursive;background:var(--ink);color:#fff;padding:2px 8px;font-size:1rem;flex-shrink:0;">3</span>
-                            <span style="font-size:0.95rem;font-weight:500;line-height:1.4;">Make choices at each scene. Get them right to move forward!</span>
+                        <div class="how-to-step">
+                            <span class="step-badge">3</span>
+                            <span class="step-text">Make choices at each scene. Get them right to move forward!</span>
                         </div>
-                        <div style="display:flex;gap:10px;align-items:flex-start;">
-                            <span style="font-family:'Bangers',cursive;background:var(--ink);color:#fff;padding:2px 8px;font-size:1rem;flex-shrink:0;">4</span>
-                            <span style="font-size:0.95rem;font-weight:500;line-height:1.4;">Learn real ECI rules and discover how Indian elections actually work.</span>
+                        <div class="how-to-step">
+                            <span class="step-badge">4</span>
+                            <span class="step-text">Learn real ECI rules and discover how Indian elections actually work.</span>
                         </div>
                     </div>
-                    <div style="margin-top:12px;padding-top:10px;border-top:2px dashed #ccc;font-size:0.8rem;color:#777;font-weight:600;">
+                    <div class="how-to-tip">
                         ⌨️ TIP: Use number keys <strong>1–4</strong> to select choices. Press <strong>Enter</strong> to continue.
                     </div>
                 </div>
 
-                <button class="menu-btn" id="btn-start-playing" style="width:auto;padding:14px 40px;font-size:1.4rem;background:var(--yellow);display:inline-block;letter-spacing:2px;align-self:center;">
+                <button class="menu-btn" id="btn-start-playing" style="width:auto;padding:16px 48px;font-size:1.6rem;background:var(--yellow);display:inline-block;letter-spacing:2px;">
                     🗳️ START PLAYING ➜
                 </button>
             </div>

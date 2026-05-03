@@ -305,3 +305,42 @@
     font-weight: 700;
     font-style: normal;
 }
+
+/* ── RESPONSIVENESS ── */
+@media (max-width: 768px) {
+    .visual-card h3 {
+        font-size: 1.4rem;
+    }
+    .visual-card ul li {
+        font-size: 0.95rem;
+    }
+    .amount-big {
+        font-size: 2.2rem;
+    }
+    .stat-big {
+        font-size: 1.8rem;
+    }
+    .dialog-area {
+        padding: 15px 20px;
+        min-height: 140px;
+    }
+    .speaker-name {
+        font-size: 1.2rem;
+    }
+    .dialog-text {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .dialog-area {
+        padding: 12px 15px;
+        min-height: 120px;
+    }
+    .visual-card h3 {
+        font-size: 1.2rem;
+    }
+    .comp-table {
+        font-size: 0.7rem;
+    }
+}

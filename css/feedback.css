@@ -118,3 +118,33 @@
 .accent-red    { border-color: var(--red);    } .accent-red    h3 { color: var(--red); }
 .accent-purple { border-color: var(--purple); } .accent-purple h3 { color: var(--purple); }
 .accent-yellow { border-color: var(--yellow); } .accent-yellow h3 { color: #b8860b; }
+
+/* ── RESPONSIVENESS ── */
+@media (max-width: 768px) {
+    .choices-overlay {
+        padding: 1.5rem;
+    }
+    .choice-btn {
+        width: 100%;
+        font-size: 0.9rem;
+        padding: 10px 14px;
+    }
+    .feedback-title {
+        font-size: 1.8rem;
+    }
+    .feedback-text {
+        font-size: 0.9rem;
+    }
+    .end-screen h1 {
+        font-size: 2.2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .choices-label {
+        font-size: 1.2rem;
+    }
+    .end-screen {
+        padding: 1.5rem;
+    }
+}
