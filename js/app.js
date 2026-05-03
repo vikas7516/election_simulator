@@ -216,7 +216,8 @@ class ElectionSimulator {
             this.setState({ screen: 'MENU_ELECTION' }); 
         });
 
-        this.app.querySelectorAll('.election-btn').forEach(b => {
+        const btns = this.app.querySelectorAll('.election-btn');
+        btns.forEach(b => {
             b.addEventListener('click', async () => {
                 if (b.disabled) return;
                 this.initAudio(); 
@@ -226,7 +227,8 @@ class ElectionSimulator {
                 const elData = this.data.ELECTIONS[elKey];
                 const originalText = b.innerHTML;
                 
-                b.disabled = true;
+                // Disable all buttons to prevent race conditions
+                btns.forEach(btn => btn.disabled = true);
                 b.innerHTML = `<span class="spinner"></span> Loading...`;
                 
                 try {
@@ -236,9 +238,11 @@ class ElectionSimulator {
                     } else {
                         this.setState({ election: elKey, screen: 'MENU_ROLE' });
                     }
-                } catch {
+                } catch (error) {
+                    console.error('Error loading election data:', error);
                     this.showNotification('Could not load election data. Please try again.', 'error');
-                    b.disabled = false;
+                    // Re-enable all buttons on failure
+                    btns.forEach(btn => btn.disabled = false);
                     b.innerHTML = originalText;
                 }
             });

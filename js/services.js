@@ -21,7 +21,7 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 
-const GEMINI_PROXY_URL = "/api/gemini/v1beta/models/gemini-1.5-flash:generateContent";
+const GEMINI_PROXY_URL = "/api/gemini/v1beta/models/gemini-3.1-flash:generateContent";
 
 /**
  * Fetches the master election and role data from Firebase Firestore.
@@ -29,12 +29,17 @@ const GEMINI_PROXY_URL = "/api/gemini/v1beta/models/gemini-1.5-flash:generateCon
  * @throws {Error} If the data cannot be found or connection fails.
  */
 export async function fetchMasterData() {
-    const docRef = doc(db, "election_data", "master");
-    const docSnap = await getDoc(docRef);
-    if (docSnap.exists()) {
-        return docSnap.data();
+    try {
+        const docRef = doc(db, "election_data", "master");
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+            return docSnap.data();
+        }
+        throw new Error("Master data missing in DB");
+    } catch (error) {
+        console.error("fetchMasterData failed:", error);
+        throw error;
     }
-    throw new Error("Master data missing in DB");
 }
 
 /**
@@ -44,12 +49,17 @@ export async function fetchMasterData() {
  * @throws {Error} If the story document is missing.
  */
 export async function fetchElectionStory(electionKey) {
-    const docRef = doc(db, "election_stories", electionKey);
-    const docSnap = await getDoc(docRef);
-    if (docSnap.exists()) {
-        return docSnap.data();
+    try {
+        const docRef = doc(db, "election_stories", electionKey);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+            return docSnap.data();
+        }
+        throw new Error(`Story ${electionKey} missing in DB`);
+    } catch (error) {
+        console.error(`fetchElectionStory failed for ${electionKey}:`, error);
+        throw error;
     }
-    throw new Error(`Story ${electionKey} missing in DB`);
 }
 
 /**
@@ -117,22 +127,20 @@ Respond strictly in valid JSON format matching this exact structure (an array of
             })
         });
         
-        // Check for HTTP errors
         if (!response.ok) {
             throw new Error(`Gemini API error: ${response.status} ${response.statusText}`);
         }
         
         const data = await response.json();
         
-        // Validate response structure before accessing nested properties
         if (!data || !data.candidates || !data.candidates[0] || !data.candidates[0].content || !data.candidates[0].content.parts || !data.candidates[0].content.parts[0]) {
             throw new Error('Invalid Gemini API response structure');
         }
         
         const raw = data.candidates[0].content.parts[0].text;
-        // Handle both pre-parsed JSON (structured output) and string responses
         return typeof raw === 'string' ? JSON.parse(raw) : raw;
-    } catch {
+    } catch (error) {
+        console.error("generateGeminiContentBulk failed:", error);
         return null;
     }
 }
