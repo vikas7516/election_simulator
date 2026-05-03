@@ -453,6 +453,8 @@ describe('End Game Summary', () => {
   });
 });
 
+import { TIMINGS, AUDIO, UI_CONFIG, AI_LOADING } from '../js/constants.js';
+
 describe('Audio Module Logic', () => {
   test('AudioMixin provides expected sound triggers', () => {
     const mockApp = {
@@ -461,6 +463,15 @@ describe('Audio Module Logic', () => {
     };
     // Basic structural check
     expect(typeof mockApp.playTone).toBe('function');
+  });
+});
+
+describe('Constants Coverage', () => {
+  test('constants exist', () => {
+    expect(TIMINGS.NOTIFICATION_DISPLAY_TIME).toBeGreaterThan(0);
+    expect(AUDIO.FREQ_CLICK).toBeGreaterThan(0);
+    expect(UI_CONFIG.CHOICE_KEYS_MAX).toBe(4);
+    expect(AI_LOADING.PROGRESS_STEP_SIZE).toBe(20);
   });
 });
 

@@ -1,66 +1,55 @@
 // UI Mixin
 export const UIMixin = {
-    // ── RENDER VISUAL CARD ──────────────────────────────────────────────
+    // ── VISUAL CARD RENDERER STRATEGIES ──────────────────────────────────
     /**
-     * Renders a visual data card (info, checklist, stats, etc.) based on type.
-     * @param {Object} v - Visual data object.
-     * @returns {string} Sanitized HTML string.
+     * Registry of visual card rendering strategies, indexed by type.
+     * Reduces cyclomatic complexity by eliminating nested conditionals.
      */
-    renderVisual(v) {
-        if (!v) return '';
-        const accent = v.color ? `accent-${v.color}` : '';
-
-        if (v.type === 'info_card') {
-            return `<div class="visual-card ${accent}">
+    visualCardRenderers: {
+        info_card: (v, accent) => `<div class="visual-card ${accent}">
                 <h3>${v.title}</h3>
                 <ul>${v.items.map(i => `<li>${i}</li>`).join('')}</ul>
-            </div>`;
-        }
-        if (v.type === 'checklist') {
-            return `<div class="visual-card ${accent}">
+            </div>`,
+        
+        checklist: (v, accent) => `<div class="visual-card ${accent}">
                 <h3>${v.title}</h3>
                 ${v.items.map(i => `<div class="checklist-item">
                     <span class="${i.check ? 'check-yes' : 'check-no'}">${i.check ? '✅' : '❌'}</span>
                     <span>${i.text}</span>
                 </div>`).join('')}
-            </div>`;
-        }
-        if (v.type === 'amount_card') {
-            return `<div class="visual-card amount-card ${accent}">
+            </div>`,
+        
+        amount_card: (v, accent) => `<div class="visual-card amount-card ${accent}">
                 <h3>${v.label}</h3>
                 <span class="amount-big">${v.amount}</span>
                 ${v.note ? `<div class="amount-note">${v.note}</div>` : ''}
-            </div>`;
-        }
-        if (v.type === 'stat_card') {
-            return `<div class="visual-card stat-card ${accent}">
+            </div>`,
+        
+        stat_card: (v, accent) => `<div class="visual-card stat-card ${accent}">
                 <span class="stat-big stat-value" data-color="${v.color || 'cyan'}">${v.stat}</span>
                 <span class="stat-label">${v.label}</span>
                 ${v.context ? `<div class="stat-context">${v.context}</div>` : ''}
-            </div>`;
-        }
-        if (v.type === 'stage_card') {
-            return `<div class="visual-card ${accent}">
+            </div>`,
+        
+        stage_card: (v, accent) => `<div class="visual-card ${accent}">
                 <span class="stage-badge">${v.stage}</span>
                 <h3>${v.title}</h3>
                 <div class="stage-body">${v.body}</div>
-            </div>`;
-        }
-        if (v.type === 'process_steps') {
-            return `<div class="visual-card ${accent}">
+            </div>`,
+        
+        process_steps: (v, accent) => `<div class="visual-card ${accent}">
                 ${v.title ? `<h3>${v.title}</h3>` : ''}
                 <ul class="steps-list">
                     ${v.steps.map((s, i) => `<li><span class="step-num">${i + 1}</span><span>${s}</span></li>`).join('')}
                 </ul>
-            </div>`;
-        }
-        if (v.type === 'highlight_box') {
-            return `<div class="visual-card highlight-box ${accent}">
+            </div>`,
+        
+        highlight_box: (v, accent) => `<div class="visual-card highlight-box ${accent}">
                 <h3>${v.title}</h3>
                 <div class="hb-body">${v.body}</div>
-            </div>`;
-        }
-        if (v.type === 'comparison_table') {
+            </div>`,
+        
+        comparison_table: (v, accent) => {
             const rows = Math.max(v.left.items.length, v.right.items.length);
             let trs = '';
             for (let i = 0; i < rows; i++) {
@@ -73,17 +62,28 @@ export const UIMixin = {
                     ${trs}
                 </table>
             </div>`;
-        }
-
-        if (v.type === 'timeline') {
-            return `<div class="visual-card ${accent}">
+        },
+        
+        timeline: (v, accent) => `<div class="visual-card ${accent}">
                 ${v.title ? `<h3>${v.title}</h3>` : ''}
                 <ul class="timeline-list">
                     ${v.items.map(i => `<li><span class="tl-time">${i.time}</span><span class="tl-text">${i.text}</span></li>`).join('')}
                 </ul>
-            </div>`;
-        }
-        return '';
+            </div>`
+    },
+
+    // ── RENDER VISUAL CARD ──────────────────────────────────────────────
+    /**
+     * Renders a visual data card (info, checklist, stats, etc.) based on type.
+     * Uses a strategy pattern to maintain low cyclomatic complexity.
+     * @param {Object} v - Visual data object with type and content properties.
+     * @returns {string} Sanitized HTML string.
+     */
+    renderVisual(v) {
+        if (!v || !v.type) return '';
+        const accent = v.color ? `accent-${v.color}` : '';
+        const renderer = this.visualCardRenderers[v.type];
+        return renderer ? renderer(v, accent) : '';
     },
 
     // ── MAIN RENDER ─────────────────────────────────────────────────────
@@ -115,7 +115,7 @@ export const UIMixin = {
         this.attachListeners();
     },
     renderStartScreen(wrap) {
-        wrap.innerHTML = DOMPurify.sanitize(`<div class="screen" style="overflow-y:auto;">
+        wrap.innerHTML = DOMPurify.sanitize(`<div class="screen overflow-y-auto">
             <div class="start-content">
 
                 <!-- Badge row -->
@@ -181,6 +181,11 @@ export const UIMixin = {
         </div>`);
     },
     renderMenuElection(wrap) {
+        if (!this.data || !this.data.ELECTIONS) {
+            wrap.innerHTML = DOMPurify.sanitize('<div class="screen"><p class="error-msg">Error: Election data not loaded</p></div>');
+            return;
+        }
+        
         const btns = Object.keys(this.data.ELECTIONS).map(k => {
             const e = this.data.ELECTIONS[k];
             const isSpecial = e.isSpecial ? 'special-election-btn' : '';
@@ -189,18 +194,23 @@ export const UIMixin = {
                 ${specialTag}
                 <span class="btn-title">${e.title}</span>
                 <span class="btn-sub">${e.subtitle}</span>
-                <span class="btn-sub" style="margin-top:4px">${e.desc}</span>
+                <span class="btn-sub mt-4">${e.desc}</span>
             </button>`;
         }).join('');
-        wrap.innerHTML = DOMPurify.sanitize(`<div class="screen" style="overflow-y:auto;">
+        wrap.innerHTML = DOMPurify.sanitize(`<div class="screen overflow-y-auto">
             <div class="screen-header">⚡ CHOOSE THE ELECTION TYPE</div>
             <div class="menu-grid">${btns}</div>
         </div>`);
     },
     renderMenuRole(wrap) {
+        if (!this.data || !this.data.ROLES) {
+            wrap.innerHTML = DOMPurify.sanitize('<div class="screen"><p class="error-msg">Error: Role data not loaded</p></div>');
+            return;
+        }
+        
         const stories = this.storyCache[this.state.election];
         const btns = this.data.ROLES.map(r => {
-            const story = stories ? stories[r.id] : null;
+            const story = stories && stories[r.id] ? stories[r.id] : null;
             const charImg = (story && story.length > 0 && story[0].char) ? story[0].char : null;
 
             const charPreview = charImg
@@ -220,8 +230,14 @@ export const UIMixin = {
                 </div>
             </button>`;
         }).join('');
+        
+        if (!this.data || !this.data.ELECTIONS || !this.state.election) {
+            wrap.innerHTML = DOMPurify.sanitize('<div class="screen"><p class="error-msg">Error: Election data not loaded</p></div>');
+            return;
+        }
+        
         const el = this.data.ELECTIONS[this.state.election];
-        wrap.innerHTML = DOMPurify.sanitize(`<div class="screen" style="overflow-y:auto;">
+        wrap.innerHTML = DOMPurify.sanitize(`<div class="screen overflow-y-auto">
             <div class="screen-header">${el.title} — SELECT ROLE</div>
             <div class="menu-grid">${btns}</div>
             <button class="btn-back" id="btn-back" aria-label="Go Back">← BACK</button>
@@ -232,6 +248,16 @@ export const UIMixin = {
      * @param {HTMLElement} wrap - The container element.
      */
     renderScene(wrap) {
+        if (!this.state.story || !Array.isArray(this.state.story) || this.state.sceneIndex >= this.state.story.length) {
+            this.app.innerHTML = DOMPurify.sanitize('<div class="error-msg">Error: Story not loaded</div>');
+            return;
+        }
+        
+        if (!this.data || !this.data.ELECTIONS || !this.state.election) {
+            this.app.innerHTML = DOMPurify.sanitize('<div class="error-msg">Error: Election data not loaded</div>');
+            return;
+        }
+        
         const scene = this.state.story[this.state.sceneIndex];
         const el = this.data.ELECTIONS[this.state.election];
 
@@ -244,8 +270,7 @@ export const UIMixin = {
         const visualEl = this.renderVisual(scene.visual);
 
         // Prop image (right panel bottom, optional)
-        const detailedProps = ['prop_cvigil.webp', 'prop_voter_id.webp'];
-        const isDetailed = scene.asset && detailedProps.includes(scene.asset);
+        const isDetailed = scene.asset && UI_CONFIG.DETAILED_PROPS.includes(scene.asset);
 
         const propEl = scene.asset
             ? `<img src="assets/${scene.asset}" class="prop-image" id="prop-img" alt="Prop: ${scene.asset.split('.')[0]}">`
@@ -283,42 +308,42 @@ export const UIMixin = {
             </div>
 
             <!-- DIALOG (full width, bottom) -->
-            <div class="dialog-area" id="dialog-area">
+            <div class="dialog-area" id="dialog-area" aria-live="polite" aria-atomic="false">
                 <div class="speaker-name">${scene.speaker}</div>
                 <div class="dialog-text" id="dialog-text"></div>
-                <button class="btn-next" id="btn-dialog-continue" style="display:none; margin-top: 10px; align-self: flex-end;">Continue ➜</button>
+                <button class="btn-next dialog-continue-layout d-none" id="btn-dialog-continue">Continue ➜</button>
             </div>
         </div>
 
         <!-- CHOICES OVERLAY (hidden initially) -->
-        <div class="choices-overlay" id="choices-overlay" style="display:none" role="dialog" aria-modal="true" aria-labelledby="choices-label">
+        <div class="choices-overlay d-none" id="choices-overlay" role="dialog" aria-modal="true" aria-labelledby="choices-label">
             <div class="choices-label" id="choices-label">⚡ WHAT DO YOU DO?</div>
-            <div id="choices-container" style="display:flex; flex-direction:column; gap:16px; width:100%; align-items:center;">
+            <div id="choices-container" class="choices-container-layout">
                 ${choicesHTML}
             </div>
         </div>
 
         <!-- FEEDBACK PANEL (hidden initially) -->
-        <div class="feedback-panel" id="feedback-panel" style="display:none" role="dialog" aria-modal="true" aria-labelledby="feedback-panel-title">
+        <div class="feedback-panel d-none" id="feedback-panel" role="dialog" aria-modal="true" aria-labelledby="feedback-panel-title">
             <span id="feedback-panel-title" class="sr-only">Choice Feedback</span>
         </div>
         `);
 
         wrap.querySelectorAll('.choice-btn').forEach(b => {
-            b.onclick = () => this.handleChoice(+b.dataset.index);
+            b.addEventListener('click', () => this.handleChoice(+b.dataset.index));
         });
 
         const noChoiceBtn = wrap.querySelector('#btn-no-choice');
         if (noChoiceBtn) {
-            noChoiceBtn.onclick = () => {
+            noChoiceBtn.addEventListener('click', () => {
                 const cont = wrap.querySelector('#btn-dialog-continue');
                 if (cont) cont.click();
-            };
+            });
         }
 
         // Show prop image if asset exists
         const propImg = wrap.querySelector('#prop-img');
-        if (propImg) propImg.style.display = 'block';
+        if (propImg) propImg.classList.remove('d-none');
 
         const continueBtn = wrap.querySelector('#btn-dialog-continue');
         const dialogTextEl = wrap.querySelector('#dialog-text');
@@ -328,26 +353,26 @@ export const UIMixin = {
         this.typeWriter(scene.dialog, dialogTextEl, () => {
             this.isTyping = false;
             if (continueBtn) {
-                continueBtn.style.display = 'inline-block';
-                continueBtn.onclick = () => {
+                continueBtn.classList.remove('d-none');
+                continueBtn.addEventListener('click', () => {
                     if (scene.choices && scene.choices.length > 0) {
-                        continueBtn.style.display = 'none';
+                        continueBtn.classList.add('d-none');
                         const overlay = wrap.querySelector('#choices-overlay');
-                        if (overlay) overlay.style.display = 'flex';
+                        if (overlay) overlay.classList.remove('d-none');
                     } else {
                         this.nextScene();
                     }
-                };
+                });
             }
         });
 
         // Allow skipping typewriter
         if (dialogArea) {
-            dialogArea.onclick = () => {
+            dialogArea.addEventListener('click', () => {
                 if (this.isTyping) {
                     this.skipTypeWriter(scene.dialog, dialogTextEl);
                 }
-            };
+            });
         }
     },
     /**
@@ -357,18 +382,30 @@ export const UIMixin = {
      * @param {Function} onDone - Callback when typing completes.
      */
     typeWriter(text, el, onDone) {
-        if (this.typeWriterIv) clearInterval(this.typeWriterIv);
+        // 1. Immediate cleanup of previous instance
+        if (this.typeWriterIv) {
+            clearInterval(this.typeWriterIv);
+            this.typeWriterIv = null;
+        }
+        
         el.textContent = '';
         this.onTypeWriterDone = onDone;
         let i = 0;
+        
+        // 2. State-driven loop
         this.typeWriterIv = setInterval(() => {
+            if (!this.isTyping) {
+                clearInterval(this.typeWriterIv);
+                return;
+            }
+            
             el.textContent += text.charAt(i++);
             if (i >= text.length) {
                 clearInterval(this.typeWriterIv);
                 this.isTyping = false;
                 if (this.onTypeWriterDone) this.onTypeWriterDone();
             }
-        }, 15);
+        }, TIMINGS.TYPEWRITER_INTERVAL);
     },
     skipTypeWriter(text, el) {
         if (this.typeWriterIv) clearInterval(this.typeWriterIv);
@@ -377,8 +414,13 @@ export const UIMixin = {
         if (this.onTypeWriterDone) this.onTypeWriterDone();
     },
     renderEnd(wrap) {
+        if (!this.data || !this.data.ELECTIONS || !this.state.election) {
+            wrap.innerHTML = DOMPurify.sanitize('<div class="error-msg">Error: Data not loaded</div>');
+            return;
+        }
+        
         const el = this.data.ELECTIONS[this.state.election];
-        wrap.innerHTML = DOMPurify.sanitize(`<div class="screen" style="overflow-y:auto;">
+        wrap.innerHTML = DOMPurify.sanitize(`<div class="screen overflow-y-auto">
             <div class="end-screen">
                 <h1>🏆 MISSION COMPLETE!</h1>
                 <p>You experienced <strong>${el.title}</strong> as <strong>${this.state.role}</strong>.</p>
@@ -418,11 +460,11 @@ export const UIMixin = {
         // Safely append to vn-container if it exists, otherwise to app root
         const container = this.app.querySelector('.vn-container') || this.app;
         container.appendChild(modal);
-        modal.querySelector('#btn-exit-cancel').onclick = () => modal.remove();
-        modal.querySelector('#btn-exit-confirm').onclick = () => {
+        modal.querySelector('#btn-exit-cancel').addEventListener('click', () => modal.remove());
+        modal.querySelector('#btn-exit-confirm').addEventListener('click', () => {
             modal.remove();
             this.setState({ screen: 'MENU_ELECTION', election: null, role: null });
-        };
+        });
     }
 
 };

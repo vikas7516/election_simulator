@@ -3,6 +3,8 @@
  * Uses the Web Audio API to generate procedural sounds without external assets.
  * @module AudioMixin
  */
+import { TIMINGS, AUDIO } from './constants.js';
+
 export const AudioMixin = {
     /**
      * Initializes the AudioContext upon user interaction.
@@ -13,7 +15,7 @@ export const AudioMixin = {
         }
     },
 
-    playTone(freq, type, duration, vol=0.3, detune=0) {
+    playTone(freq, type, duration, vol = 0.3, detune = 0) {
         if (!this.audioCtx) return;
         const osc = this.audioCtx.createOscillator();
         const gain = this.audioCtx.createGain();
@@ -31,29 +33,34 @@ export const AudioMixin = {
         osc.stop(this.audioCtx.currentTime + duration);
     },
 
-    playClick() { this.playTone(800, 'sine', 0.1, 0.2); },
-    playHover() { this.playTone(1200, 'sine', 0.05, 0.05); },
+    playClick() { 
+        this.playTone(AUDIO.FREQ_CLICK, AUDIO.OSC_SINE, TIMINGS.AUDIO_CLICK_DURATION, AUDIO.VOL_CLICK); 
+    },
+    
+    playHover() { 
+        this.playTone(AUDIO.FREQ_HOVER, AUDIO.OSC_SINE, TIMINGS.AUDIO_HOVER_DURATION, AUDIO.VOL_HOVER); 
+    },
     
     playCorrect() { 
-        this.playTone(440, 'sine', 0.15, 0.4); 
-        setTimeout(() => this.playTone(554, 'sine', 0.15, 0.4), 100);
-        setTimeout(() => this.playTone(659, 'sine', 0.4, 0.5), 200);
+        this.playTone(AUDIO.FREQ_CORRECT_1, AUDIO.OSC_SINE, TIMINGS.AUDIO_CORRECT_DURATION, AUDIO.VOL_CORRECT_1); 
+        setTimeout(() => this.playTone(AUDIO.FREQ_CORRECT_2, AUDIO.OSC_SINE, TIMINGS.AUDIO_CORRECT_DURATION, AUDIO.VOL_CORRECT_2), TIMINGS.AUDIO_CORRECT_DELAY_1);
+        setTimeout(() => this.playTone(AUDIO.FREQ_CORRECT_3, AUDIO.OSC_SINE, TIMINGS.AUDIO_CORRECT_DURATION * 2.67, AUDIO.VOL_CORRECT_3), TIMINGS.AUDIO_CORRECT_DELAY_2);
     },
 
     playWrong() { 
-        this.playTone(180, 'sawtooth', 0.2, 0.4); 
-        setTimeout(() => this.playTone(150, 'sawtooth', 0.4, 0.5), 150);
+        this.playTone(AUDIO.FREQ_WRONG_1, AUDIO.OSC_SAWTOOTH, TIMINGS.AUDIO_WRONG_DURATION, AUDIO.VOL_WRONG_1); 
+        setTimeout(() => this.playTone(AUDIO.FREQ_WRONG_2, AUDIO.OSC_SAWTOOTH, TIMINGS.AUDIO_WRONG_DURATION * 2, AUDIO.VOL_WRONG_2), TIMINGS.AUDIO_WRONG_DELAY);
     },
     
     playStart() {
-        this.playTone(440, 'triangle', 0.2, 0.4);
-        setTimeout(() => this.playTone(880, 'triangle', 0.5, 0.5), 150);
+        this.playTone(AUDIO.FREQ_START, AUDIO.OSC_TRIANGLE, TIMINGS.AUDIO_START_DURATION, AUDIO.VOL_START_1);
+        setTimeout(() => this.playTone(AUDIO.FREQ_FINISH_4, AUDIO.OSC_TRIANGLE, TIMINGS.AUDIO_START_DURATION * 2.5, AUDIO.VOL_START_2), TIMINGS.AUDIO_START_DELAY);
     },
     
     playFinish() {
-        this.playTone(523.25, 'square', 0.2, 0.3);
-        setTimeout(() => this.playTone(659.25, 'square', 0.2, 0.3), 150);
-        setTimeout(() => this.playTone(783.99, 'square', 0.2, 0.3), 300);
-        setTimeout(() => this.playTone(1046.50, 'square', 0.6, 0.5), 450);
+        this.playTone(AUDIO.FREQ_FINISH_1, AUDIO.OSC_SQUARE, TIMINGS.AUDIO_FINISH_DURATION, AUDIO.VOL_FINISH_1);
+        setTimeout(() => this.playTone(AUDIO.FREQ_FINISH_2, AUDIO.OSC_SQUARE, TIMINGS.AUDIO_FINISH_DURATION, AUDIO.VOL_FINISH_2), TIMINGS.AUDIO_FINISH_DELAY_1);
+        setTimeout(() => this.playTone(AUDIO.FREQ_FINISH_3, AUDIO.OSC_SQUARE, TIMINGS.AUDIO_FINISH_DURATION, AUDIO.VOL_FINISH_3), TIMINGS.AUDIO_FINISH_DELAY_2);
+        setTimeout(() => this.playTone(AUDIO.FREQ_FINISH_4, AUDIO.OSC_SQUARE, TIMINGS.AUDIO_FINISH_DURATION * 3, AUDIO.VOL_FINISH_4), TIMINGS.AUDIO_FINISH_DELAY_3);
     }
 };

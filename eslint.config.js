@@ -1,0 +1,1 @@
+export default [{files: ["js/**/*.js"], rules: {"no-unused-vars": "warn", "no-console": "warn"}, languageOptions: {ecmaVersion: 2022, sourceType: "module"}}];

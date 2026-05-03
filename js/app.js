@@ -1,6 +1,7 @@
 import { AudioMixin } from './audio.js';
 import { UIMixin } from './ui.js';
 import { fetchMasterData, fetchElectionStory, generateGeminiContentBulk } from './services.js';
+import { TIMINGS, UI_CONFIG } from './constants.js';
 
 /**
  * Core engine for the Indian Election Simulator.
@@ -59,7 +60,7 @@ class ElectionSimulator {
         note.className = `notification-box ${type==='error'?'notification-error':'notification-info'}`;
         note.textContent = msg;
         document.body.appendChild(note);
-        setTimeout(() => note.remove(), 4000);
+        setTimeout(() => note.remove(), TIMINGS.NOTIFICATION_DISPLAY_TIME);
     }
 
     // ── CHOICE HANDLER ───────────────────────────────────────────────────
@@ -68,36 +69,47 @@ class ElectionSimulator {
      * @param {number} idx - The index of the selected choice.
      */
     handleChoice(idx) {
-        this.initAudio();
+        // Defensive checks to prevent crashes
+        if (!this.state.story || !Array.isArray(this.state.story)) return;
+        
         const scene = this.state.story[this.state.sceneIndex];
+        if (!scene || !Array.isArray(scene.choices) || idx < 0 || idx >= scene.choices.length) return;
+        
         const choice = scene.choices[idx];
         const wrap = this.app.querySelector('.vn-container');
+        if (!wrap) return;
 
-        wrap.querySelector('#choices-overlay').style.display = 'none';
+        const overlay = wrap.querySelector('#choices-overlay');
+        if (overlay) overlay.classList.add('d-none');
 
         if (choice.isCorrect) this.playCorrect();
         else this.playWrong();
 
         const fp = wrap.querySelector('#feedback-panel');
+        if (!fp) {
+            return;
+        }
+        
+        this.initAudio();
         fp.className = `feedback-panel ${choice.isCorrect ? 'correct' : 'wrong'}`;
-        fp.style.display = 'flex';
+        fp.classList.remove('d-none');
         fp.innerHTML = DOMPurify.sanitize(`
             <div class="feedback-title">${choice.isCorrect ? '✅ CORRECT!' : '❌ WRONG MOVE!'}</div>
             <div class="feedback-text">${choice.feedback}</div>
             ${choice.isCorrect
                 ? `<button class="btn-next" id="btn-next">NEXT SCENE ➜</button>`
-                : `<button class="btn-next" id="btn-retry" style="box-shadow:3px 3px 0 var(--red)">TRY AGAIN ↩</button>`
+                : `<button class="btn-next btn-retry-shadow" id="btn-retry">TRY AGAIN ↩</button>`
             }
         `);
 
         const nextBtn = fp.querySelector('#btn-next');
-        if (nextBtn) nextBtn.onclick = () => this.nextScene();
+        if (nextBtn) nextBtn.addEventListener('click', () => this.nextScene());
 
         const retryBtn = fp.querySelector('#btn-retry');
-        if (retryBtn) retryBtn.onclick = () => {
-            fp.style.display = 'none';
-            wrap.querySelector('#choices-overlay').style.display = 'flex';
-        };
+        if (retryBtn) retryBtn.addEventListener('click', () => {
+            fp.classList.add('d-none');
+            wrap.querySelector('#choices-overlay').classList.remove('d-none');
+        });
     }
 
     nextScene() {
@@ -141,7 +153,7 @@ class ElectionSimulator {
                 const step = Math.floor(progress / 20) * 20;
                 bar.setAttribute('data-progress', step.toString());
             }
-        }, 400);
+        }, TIMINGS.AI_LOADING_PROGRESS_INTERVAL);
 
         // Fetch bulk choices
         const generated = await generateGeminiContentBulk(story);
@@ -162,21 +174,60 @@ class ElectionSimulator {
 
         setTimeout(() => {
             this.setState({ election: electionKey, role, story, sceneIndex: 0, screen: 'SIMULATION' });
-        }, 500);
+        }, TIMINGS.AI_LOADING_DELAY);
     }
 
     // ── EVENT LISTENERS ──────────────────────────────────────────────────
+    initKeyboardGlobal() {
+        this._onKeydown = (e) => {
+            if (this.state.screen !== 'SIMULATION') return;
+
+            const overlay = document.getElementById('choices-overlay');
+            const fp = document.getElementById('feedback-panel');
+            
+            // 1. Handle Choice Selection (1-4)
+            if (overlay && !overlay.classList.contains('d-none')) {
+                const num = parseInt(e.key);
+                if (num >= UI_CONFIG.CHOICE_KEY_START && num <= UI_CONFIG.CHOICE_KEYS_MAX) {
+                    const btns = overlay.querySelectorAll('.choice-btn');
+                    const chosenBtn = btns[num - UI_CONFIG.CHOICE_KEY_START];
+                    if (chosenBtn) chosenBtn.click();
+                }
+            } 
+            // 2. Handle Feedback/Dialog Continuation (Enter)
+            else if (e.key === 'Enter') {
+                if (fp && !fp.classList.contains('d-none')) {
+                    const nextBtn = fp.querySelector('#btn-next') || fp.querySelector('#btn-retry');
+                    if (nextBtn) nextBtn.click();
+                } else {
+                    const contBtn = document.getElementById('btn-dialog-continue');
+                    if (contBtn && !contBtn.classList.contains('d-none')) contBtn.click();
+                }
+            }
+        };
+        document.addEventListener('keydown', this._onKeydown);
+    }
+
     attachListeners() {
         const startBtn = document.getElementById('btn-start-playing');
-        if (startBtn) startBtn.onclick = () => { this.initAudio(); this.playStart(); this.setState({ screen: 'MENU_ELECTION' }); };
+        if (startBtn) startBtn.addEventListener('click', () => { 
+            this.initAudio(); 
+            this.playStart(); 
+            this.setState({ screen: 'MENU_ELECTION' }); 
+        });
 
         this.app.querySelectorAll('.election-btn').forEach(b => {
-            b.onclick = async () => {
-                this.initAudio(); this.playStart();
+            b.addEventListener('click', async () => {
+                if (b.disabled) return;
+                this.initAudio(); 
+                this.playStart();
+                
                 const elKey = b.dataset.election;
                 const elData = this.data.ELECTIONS[elKey];
-                const originalText = b.textContent;
-                b.textContent = 'Loading...';
+                const originalText = b.innerHTML;
+                
+                b.disabled = true;
+                b.innerHTML = `<span class="spinner"></span> Loading...`;
                 
                 try {
                     const stories = await this.loadElectionData(elKey);
@@ -185,70 +236,47 @@ class ElectionSimulator {
                     } else {
                         this.setState({ election: elKey, screen: 'MENU_ROLE' });
                     }
-                } catch (e) {
+                } catch {
                     this.showNotification('Could not load election data. Please try again.', 'error');
-                    b.textContent = originalText;
+                    b.disabled = false;
+                    b.innerHTML = originalText;
                 }
-            };
+            });
         });
 
         this.app.querySelectorAll('.role-btn').forEach(b => {
-            b.onclick = async () => {
+            b.addEventListener('click', async () => {
                 this.initAudio(); this.playStart();
                 const role = b.dataset.role;
                 const stories = this.storyCache[this.state.election];
                 const story = stories[role];
                 await this.startRole(role, story, this.state.election);
-            };
+            });
         });
 
         const back = document.getElementById('btn-back');
-        if (back) back.onclick = () => { this.playClick(); this.setState({ screen: 'MENU_ELECTION' }); };
+        if (back) back.addEventListener('click', () => { this.playClick(); this.setState({ screen: 'MENU_ELECTION' }); });
 
         const restart = document.getElementById('btn-restart');
-        if (restart) restart.onclick = () => { this.playClick(); this.setState({ screen: 'MENU_ELECTION', election: null, role: null }); };
+        if (restart) restart.addEventListener('click', () => { this.playClick(); this.setState({ screen: 'MENU_ELECTION', election: null, role: null }); });
 
         const leave = document.getElementById('btn-leave');
-        if (leave) leave.onclick = () => {
+        if (leave) leave.addEventListener('click', () => {
             this.playClick();
             this.showExitModal();
-        };
+        });
 
         // Add hover sounds to all buttons
         this.app.querySelectorAll('button').forEach(b => {
-            b.onmouseenter = () => this.playHover();
+            b.addEventListener('mouseenter', () => this.playHover());
         });
-
-        // Keyboard navigation — use addEventListener for cleaner code quality
-        this._onKeydown = (e) => {
-            if (this.state.screen === 'SIMULATION') {
-                const overlay = document.getElementById('choices-overlay');
-                const fp = document.getElementById('feedback-panel');
-                
-                if (overlay && overlay.style.display !== 'none') {
-                    const num = parseInt(e.key);
-                    if (num >= 1 && num <= 4) {
-                        const btns = overlay.querySelectorAll('.choice-btn');
-                        if (btns[num - 1]) btns[num - 1].click();
-                    }
-                } else if (fp && fp.style.display !== 'none') {
-                    if (e.key === 'Enter') {
-                        const nextBtn = fp.querySelector('#btn-next') || fp.querySelector('#btn-retry');
-                        if (nextBtn) nextBtn.click();
-                    }
-                } else {
-                    if (e.key === 'Enter') {
-                        const contBtn = document.getElementById('btn-dialog-continue');
-                        if (contBtn && contBtn.style.display !== 'none') contBtn.click();
-                    }
-                }
-            }
-        };
-        document.addEventListener('keydown', this._onKeydown);
     }
 }
 
 // Wire the modular pieces together
 Object.assign(ElectionSimulator.prototype, AudioMixin, UIMixin);
 
-document.addEventListener('DOMContentLoaded', () => new ElectionSimulator());
+document.addEventListener('DOMContentLoaded', () => {
+    const sim = new ElectionSimulator();
+    sim.initKeyboardGlobal();
+});
