@@ -21,7 +21,7 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 
-const GEMINI_PROXY_URL = "/api/gemini/v1beta/models/gemini-2.5-flash:generateContent";
+const GEMINI_PROXY_URL = "/api/gemini/v1beta/models/gemini-1.5-flash:generateContent";
 
 /**
  * Fetches the master election and role data from Firebase Firestore.

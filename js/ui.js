@@ -1,3 +1,5 @@
+import { UI_CONFIG, TIMINGS } from './constants.js';
+
 // UI Mixin
 export const UIMixin = {
     // ── VISUAL CARD RENDERER STRATEGIES ──────────────────────────────────
