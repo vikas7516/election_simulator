@@ -2,6 +2,7 @@
 
 An immersive, interactive, comic-style educational web application designed to demystify the immense scale, rules, and procedures of the Indian Democratic system.
 
+Try it Now - https://election-simulator-393226308231.asia-south1.run.app
 ## 🎯 The Intent
 Democracy is often taught through dry textbooks, leaving citizens confused about the actual mechanics of how governments are formed. The intent of this project is to gamify civic education. By putting users directly into the shoes of different democratic stakeholders, they learn the procedures of the Election Commission of India (ECI) through consequence-driven interactive storytelling rather than passive reading.
 
