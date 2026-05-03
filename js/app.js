@@ -32,6 +32,19 @@ class ElectionSimulator {
 
     setState(s) { this.state = { ...this.state, ...s }; this.render(); }
 
+    showNotification(msg, type = 'error') {
+        const existing = document.getElementById('app-notification');
+        if (existing) existing.remove();
+        const note = document.createElement('div');
+        note.id = 'app-notification';
+        note.setAttribute('role', 'alert');
+        note.setAttribute('aria-live', 'assertive');
+        note.style.cssText = `position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:9999;padding:14px 28px;font-family:'Inter',sans-serif;font-weight:700;font-size:1rem;border:3px solid var(--ink);box-shadow:4px 4px 0 var(--ink);background:${type==='error'?'#ffeaea':'#eaffea'};color:var(--ink);max-width:90vw;text-align:center;`;
+        note.textContent = msg;
+        document.body.appendChild(note);
+        setTimeout(() => note.remove(), 4000);
+    }
+
     // ── CHOICE HANDLER ───────────────────────────────────────────────────
     handleChoice(idx) {
         this.initAudio();
@@ -78,7 +91,7 @@ class ElectionSimulator {
 
     async startRole(role, story, electionKey) {
         if (!story || story.length === 0) {
-            alert('Story coming soon! Check back later.');
+            this.showNotification('This story is coming soon! Check back later.', 'info');
             return;
         }
 
@@ -143,7 +156,7 @@ class ElectionSimulator {
                         this.setState({ election: elKey, screen: 'MENU_ROLE' });
                     }
                 } catch (e) {
-                    alert('Could not load election data.');
+                    this.showNotification('Could not load election data. Please try again.', 'error');
                     b.textContent = originalText;
                 }
             };

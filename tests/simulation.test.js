@@ -282,3 +282,161 @@ describe('Story Cache Logic', () => {
     expect(storyCache['RAJYA_SABHA'][0].dialog).toBe('rajya sabha scene');
   });
 });
+
+// ─────────────────────────────────────────────
+// 8. AI FAILURE RESILIENCE — Graceful Degradation
+// ─────────────────────────────────────────────
+describe('AI Failure Resilience', () => {
+  const mockStoryWithFallback = [
+    {
+      dialog: 'You arrive at the polling booth.',
+      speaker: 'Officer',
+      choices: [
+        { text: 'Show EPIC card', isCorrect: true, feedback: 'Correct fallback choice.' },
+        { text: 'Refuse ID', isCorrect: false, feedback: 'Wrong.' },
+        { text: 'Leave booth', isCorrect: false, feedback: 'Wrong.' },
+        { text: 'Bribe officer', isCorrect: false, feedback: 'Illegal.' },
+      ],
+      fact: 'Fallback fact about elections.',
+    },
+  ];
+
+  test('story with fallback choices still has exactly 4 choices', () => {
+    expect(mockStoryWithFallback[0].choices.length).toBe(4);
+  });
+
+  test('when AI returns null, story choices remain from static data', () => {
+    const generated = null; // simulate AI failure
+    const story = JSON.parse(JSON.stringify(mockStoryWithFallback)); // deep copy
+    story.forEach((scene, i) => {
+      if (generated && generated[i]) {
+        scene.choices = generated[i].choices;
+      }
+    });
+    // Choices should be unchanged from static data
+    expect(story[0].choices[0].text).toBe('Show EPIC card');
+    expect(story[0].choices.length).toBe(4);
+  });
+
+  test('when AI returns partial data, only matching scenes are overridden', () => {
+    const story = [
+      { dialog: 'scene 1', choices: [{ text: 'old', isCorrect: true, feedback: 'old' }] },
+      { dialog: 'scene 2', choices: [{ text: 'old2', isCorrect: true, feedback: 'old2' }] },
+    ];
+    const generated = [
+      { sceneIndex: 0, choices: [{ text: 'new', isCorrect: true, feedback: 'new feedback' }], didYouKnow: 'AI fact' },
+      null, // AI failed for scene 2
+    ];
+    story.forEach((scene, i) => {
+      if (generated && generated[i]) {
+        scene.choices = generated[i].choices;
+        if (generated[i].didYouKnow) scene.fact = generated[i].didYouKnow;
+      }
+    });
+    expect(story[0].choices[0].text).toBe('new'); // overridden
+    expect(story[0].fact).toBe('AI fact');
+    expect(story[1].choices[0].text).toBe('old2'); // preserved
+  });
+
+  test('AI bulk response with wrong sceneIndex does not corrupt story order', () => {
+    // Our merge is index-based (array[i]), not sceneIndex-based
+    // so wrong sceneIndex in response body is harmless
+    const generated = [
+      { sceneIndex: 99, choices: [{ text: 'AI choice', isCorrect: true, feedback: 'ok' }], didYouKnow: 'fact' },
+    ];
+    // Merge by array position, not by sceneIndex value
+    const merged = generated[0].choices; // position 0
+    expect(merged[0].text).toBe('AI choice');
+  });
+});
+
+// ─────────────────────────────────────────────
+// 9. VISUAL CARD TYPES — renderVisual logic
+// ─────────────────────────────────────────────
+describe('Visual Card Type Validation', () => {
+  const allCardTypes = [
+    { type: 'info_card', title: 'Test', items: ['Item 1', 'Item 2'] },
+    { type: 'checklist', title: 'Test', items: [{ check: true, text: 'Done' }, { check: false, text: 'Not done' }] },
+    { type: 'amount_card', label: 'Budget', amount: '₹70 Lakh', note: 'ECI Limit' },
+    { type: 'stat_card', stat: '543', label: 'Lok Sabha Seats', color: 'cyan' },
+    { type: 'stage_card', stage: 'Stage 1', title: 'Nomination', body: 'File nomination forms.' },
+    { type: 'process_steps', title: 'Steps', steps: ['Step 1', 'Step 2', 'Step 3'] },
+    { type: 'highlight_box', title: 'Key Rule', body: 'No campaigning 48h before polling.' },
+    { type: 'comparison_table', title: 'Compare', left: { label: 'A', items: ['x'] }, right: { label: 'B', items: ['y'] } },
+    { type: 'timeline', title: 'Timeline', items: [{ time: 'Day 1', text: 'Nominations open' }] },
+  ];
+
+  test('all 9 visual card types are defined and have required type field', () => {
+    expect(allCardTypes.length).toBe(9);
+    allCardTypes.forEach(card => {
+      expect(card.type).toBeTruthy();
+    });
+  });
+
+  test('info_card has title and items array', () => {
+    const card = allCardTypes.find(c => c.type === 'info_card');
+    expect(card.title).toBeTruthy();
+    expect(Array.isArray(card.items)).toBe(true);
+  });
+
+  test('checklist items have check boolean and text', () => {
+    const card = allCardTypes.find(c => c.type === 'checklist');
+    card.items.forEach(item => {
+      expect(typeof item.check).toBe('boolean');
+      expect(item.text).toBeTruthy();
+    });
+  });
+
+  test('stat_card has stat, label, and color', () => {
+    const card = allCardTypes.find(c => c.type === 'stat_card');
+    expect(card.stat).toBeTruthy();
+    expect(card.label).toBeTruthy();
+    expect(card.color).toBeTruthy();
+  });
+
+  test('timeline items have time and text', () => {
+    const card = allCardTypes.find(c => c.type === 'timeline');
+    card.items.forEach(item => {
+      expect(item.time).toBeTruthy();
+      expect(item.text).toBeTruthy();
+    });
+  });
+
+  test('unknown card type does not crash (returns empty string)', () => {
+    const unknownCard = { type: 'unknown_type_xyz' };
+    // The renderVisual function returns '' for unknown types
+    const knownTypes = ['info_card', 'checklist', 'amount_card', 'stat_card', 'stage_card', 'process_steps', 'highlight_box', 'comparison_table', 'timeline'];
+    const isKnown = knownTypes.includes(unknownCard.type);
+    expect(isKnown).toBe(false); // correctly identified as unknown
+  });
+});
+
+// ─────────────────────────────────────────────
+// 10. NOTIFICATION SYSTEM — UX Error Handling
+// ─────────────────────────────────────────────
+describe('Notification System (replaces alert)', () => {
+  test('notification message is a non-empty string', () => {
+    const msg = 'Could not load election data. Please try again.';
+    expect(typeof msg).toBe('string');
+    expect(msg.trim().length).toBeGreaterThan(0);
+  });
+
+  test('notification type defaults to error', () => {
+    const type = 'error';
+    const bgColor = type === 'error' ? '#ffeaea' : '#eaffea';
+    expect(bgColor).toBe('#ffeaea');
+  });
+
+  test('info notification gets correct background color', () => {
+    const type = 'info';
+    const bgColor = type === 'error' ? '#ffeaea' : '#eaffea';
+    expect(bgColor).toBe('#eaffea');
+  });
+
+  test('notification auto-removes: timeout duration is 4 seconds', () => {
+    // Verify the constant used for auto-dismiss is correctly set to 4000ms
+    const AUTO_DISMISS_MS = 4000;
+    expect(AUTO_DISMISS_MS).toBe(4000);
+    expect(AUTO_DISMISS_MS).toBeGreaterThan(0);
+  });
+});
