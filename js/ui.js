@@ -171,7 +171,7 @@ export const UIMixin = {
                     </div>
                 </div>
 
-                <button class="menu-btn" id="btn-start-playing" style="width:auto;padding:16px 48px;font-size:1.6rem;background:var(--yellow);display:inline-block;letter-spacing:2px;">
+                <button class="menu-btn btn-start-playing" id="btn-start-playing">
                     🗳️ START PLAYING ➜
                 </button>
             </div>

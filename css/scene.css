@@ -174,7 +174,7 @@
         width: auto;
     }
 
-    .right-panel {
+    .right-panel, .right-panel.detailed-view {
         grid-column: 1;
         grid-row: 3;
         padding: 1rem;
@@ -183,10 +183,11 @@
         overflow-y: auto;
     }
     
-    .right-panel .prop-image {
+    .right-panel .prop-image,
+    .right-panel.detailed-view .prop-image {
         grid-column: 1;
         grid-row: auto;
-        max-height: 180px;
+        max-height: 240px;
     }
     
     .right-panel .visual-card,
@@ -217,6 +218,10 @@
     }
     .right-panel {
         padding: 0.8rem;
+    }
+    .top-bar {
+        font-size: 0.75rem;
+        flex-wrap: wrap;
     }
 }
 

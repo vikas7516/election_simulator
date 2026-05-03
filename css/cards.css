@@ -336,9 +336,11 @@
 
 @media (max-width: 480px) {
     .dialog-area {
-        padding: 12px 15px;
-        min-height: 120px;
+        padding: 10px 12px;
+        min-height: 100px;
     }
+    .speaker-name { font-size: 1.1rem; }
+    .dialog-text { font-size: 0.95rem; }
     .visual-card h3 {
         font-size: 1.2rem;
     }

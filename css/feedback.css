@@ -147,4 +147,7 @@
     .end-screen {
         padding: 1.5rem;
     }
+    .feedback-panel {
+        padding: 1rem;
+    }
 }
