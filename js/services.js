@@ -5,20 +5,20 @@ import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10
 
 // TODO: Replace with your actual Firebase config
 const firebaseConfig = {
-  apiKey: "YOUR_FIREBASE_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyDTJUW1NMyRjZGH2l-ZLKOiANGtv_YyeWs",
+  authDomain: "gen-lang-client-0708607126.firebaseapp.com",
+  projectId: "gen-lang-client-0708607126",
+  storageBucket: "gen-lang-client-0708607126.firebasestorage.app",
+  messagingSenderId: "393226308231",
+  appId: "1:393226308231:web:f1a53bf4f85b5419dc4622",
+  measurementId: "G-S4GXBFNFWJ"
 };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// The GEMINI_API_KEY is NO LONGER HARDCODED!
-// We route requests through our own local Nginx secure reverse proxy
+
 const GEMINI_PROXY_URL = "/api/gemini/v1beta/models/gemini-1.5-flash:generateContent";
 
 export async function fetchMasterData() {
@@ -56,7 +56,7 @@ export async function fetchElectionStory(electionKey, localFile) {
 }
 
 export async function generateGeminiContent(sceneText) {
-    // We ask Gemini to generate richer choices, hints, and a "did you know" fact on the fly
+   
     const prompt = `Given the following scenario from an Indian Election simulation game:
 "${sceneText}"
 

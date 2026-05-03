@@ -1,0 +1,15 @@
+{
+  "name": "promptwar",
+  "version": "1.0.0",
+  "description": "An immersive, interactive, comic-style educational web application designed to demystify the immense scale, rules, and procedures of the Indian Democratic system.",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "firebase": "^12.12.1"
+  }
+}
