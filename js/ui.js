@@ -189,7 +189,7 @@ export const UIMixin = {
                 <span class="btn-sub" style="margin-top:4px">${e.desc}</span>
             </button>`;
         }).join('');
-        wrap.innerHTML = `<div class="screen">
+        wrap.innerHTML = `<div class="screen" style="overflow-y:auto;">
             <div class="screen-header">⚡ CHOOSE THE ELECTION TYPE</div>
             <div class="menu-grid">${btns}</div>
         </div>`;
@@ -218,7 +218,7 @@ export const UIMixin = {
             </button>`;
         }).join('');
         const el = this.data.ELECTIONS[this.state.election];
-        wrap.innerHTML = `<div class="screen">
+        wrap.innerHTML = `<div class="screen" style="overflow-y:auto;">
             <div class="screen-header">${el.title} — SELECT ROLE</div>
             <div class="menu-grid">${btns}</div>
             <button class="btn-back" id="btn-back">← BACK</button>
@@ -303,9 +303,13 @@ export const UIMixin = {
         const propImg = wrap.querySelector('#prop-img');
         if (propImg) propImg.style.display = 'block';
 
-        // Typewriter then show continue button
         const continueBtn = wrap.querySelector('#btn-dialog-continue');
-        this.typeWriter(scene.dialog, wrap.querySelector('#dialog-text'), () => {
+        const dialogTextEl = wrap.querySelector('#dialog-text');
+        const dialogArea = wrap.querySelector('#dialog-area');
+
+        this.isTyping = true;
+        this.typeWriter(scene.dialog, dialogTextEl, () => {
+            this.isTyping = false;
             if (scene.hint) {
                 const hEl = wrap.querySelector('#hint-box');
                 if (hEl) hEl.style.display = 'block';
@@ -318,24 +322,43 @@ export const UIMixin = {
                     if (overlay) overlay.style.display = 'flex';
                 };
             } else if (continueBtn && !scene.choices) {
-                // If it's just an info scene without choices, clicking continue goes to next scene
                 continueBtn.style.display = 'inline-block';
                 continueBtn.onclick = () => this.nextScene();
             }
         });
+
+        // Allow skipping typewriter
+        if (dialogArea) {
+            dialogArea.onclick = () => {
+                if (this.isTyping) {
+                    this.skipTypeWriter(scene.dialog, dialogTextEl);
+                }
+            };
+        }
     },
     typeWriter(text, el, onDone) {
         if (this.typeWriterIv) clearInterval(this.typeWriterIv);
         el.textContent = '';
+        this.onTypeWriterDone = onDone;
         let i = 0;
         this.typeWriterIv = setInterval(() => {
             el.textContent += text.charAt(i++);
-            if (i >= text.length) { clearInterval(this.typeWriterIv); if (onDone) onDone(); }
-        }, 18);
+            if (i >= text.length) { 
+                clearInterval(this.typeWriterIv); 
+                this.isTyping = false;
+                if (this.onTypeWriterDone) this.onTypeWriterDone(); 
+            }
+        }, 15);
+    },
+    skipTypeWriter(text, el) {
+        if (this.typeWriterIv) clearInterval(this.typeWriterIv);
+        el.textContent = text;
+        this.isTyping = false;
+        if (this.onTypeWriterDone) this.onTypeWriterDone();
     },
     renderEnd(wrap) {
         const el = this.data.ELECTIONS[this.state.election];
-        wrap.innerHTML = `<div class="screen">
+        wrap.innerHTML = `<div class="screen" style="overflow-y:auto;">
             <div class="end-screen">
                 <h1>🏆 MISSION COMPLETE!</h1>
                 <p>You experienced <strong>${el.title}</strong> as <strong>${this.state.role}</strong>.</p>

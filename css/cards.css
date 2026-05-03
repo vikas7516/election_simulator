@@ -267,11 +267,14 @@
     grid-row: 3;
     border-top: 4px solid var(--ink);
     background: var(--dialog-bg);
-    padding: 20px 30px;
-    min-height: 180px;
+    padding: 16px 24px;
+    min-height: 140px;
+    max-height: 220px;
     position: relative;
     display: flex;
     flex-direction: column;
+    overflow-y: auto;
+    cursor: pointer; /* Suggest interaction to skip typewriter */
 }
 
 .speaker-name {
